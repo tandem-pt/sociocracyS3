@@ -1,0 +1,51 @@
+version: '3.1'
+services:
+    nginx:
+        build: docker/nginx
+        command: nginx -g "daemon off;"
+        depends_on: 
+            - api
+        ports:
+            - "9000:80"
+        volumes:
+            - ./api/public:/var/www/html/app/public
+            
+    api:
+        build: docker/api
+        depends_on: 
+            - db
+        env_file: ./.env
+        volumes:
+            - ./api:/var/www/html/app
+        environment:
+            DB_CONNECTION: mysql
+            DB_HOST: db
+
+    db:
+        image: mariadb
+        restart: always
+        environment:
+            MYSQL_RANDOM_ROOT_PASSWORD: 1
+            MYSQL_DATABASE: ${MYSQL_DATABASE}
+            MYSQL_USER: ${MYSQL_USER}
+            MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+        volumes:
+            - "mysql_data:/var/lib/mysql"
+            - "./dump:/docker-entrypoint-initdb.d"
+
+    couchdb:
+        image: docker.io/bitnami/couchdb:3-debian-10
+        environment:
+            - COUCHDB_PASSWORD=${COUCHDB_PASSWORD}
+        ports:
+            - '5984:5984' 
+            - '4369:4369' # FIXME Don't expose any admin ports
+            - '9100:9100' # FIXME Don't expose any admin ports
+        volumes:
+            - couchdb_data:/bitnami/couchdb
+        
+volumes:
+    couchdb_data:
+        driver: local
+    mysql_data:
+        driver: local
