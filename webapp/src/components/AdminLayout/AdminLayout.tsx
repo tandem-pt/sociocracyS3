@@ -3,32 +3,19 @@ import {
     createStyles,
     withStyles,
     WithStyles,
+    Theme
 } from '@material-ui/core/styles';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import Hidden from '@material-ui/core/Hidden';
-import Typography from '@material-ui/core/Typography';
-import Link from '@material-ui/core/Link';
 import Navigator from './Navigator';
 import Content from './Content';
 import Header from './Header';
-import theme from '../../theme'
-function Copyright() {
-    return (
-        <Typography variant="body2" color="textSecondary" align="center">
-            {'Copyright © '}
-            <Link color="inherit" href="https://material-ui.com/">
-                Your Website
-      </Link>{' '}
-            {new Date().getFullYear()}
-            {'.'}
-        </Typography>
-    );
-}
+import { NavigationTabList } from './NavigationTab.types'
+import Copyright from '../Copyright'
 
-export interface PaperbaseProps extends WithStyles<typeof styles> { }
+export type AdminLayoutProps = WithStyles<typeof styles> & NavigationTabList;
 
-const _Paperbase = (props: PaperbaseProps) => {
-    const { classes } = props;
+const AdminLayout = ({ classes, tabs }: AdminLayoutProps) => {
     const [mobileOpen, setMobileOpen] = React.useState(false);
 
     const handleDrawerToggle = () => {
@@ -52,9 +39,9 @@ const _Paperbase = (props: PaperbaseProps) => {
                 </Hidden>
             </nav>
             <div className={classes.app}>
-                <Header onDrawerToggle={handleDrawerToggle} />
+                <Header onDrawerToggle={handleDrawerToggle} tabs={tabs} />
                 <main className={classes.main}>
-                    <Content />
+                    <Content tabs={tabs} />
                 </main>
                 <footer className={classes.footer}>
                     <Copyright />
@@ -67,7 +54,7 @@ const _Paperbase = (props: PaperbaseProps) => {
 
 const drawerWidth = 256;
 
-const styles = createStyles({
+const styles = (theme: Theme) => createStyles({
     root: {
         display: 'flex',
         minHeight: '100vh',
@@ -95,4 +82,4 @@ const styles = createStyles({
 });
 
 
-export default withStyles(styles)(_Paperbase);
+export default withStyles(styles)(AdminLayout);

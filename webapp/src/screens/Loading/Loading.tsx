@@ -1,8 +1,7 @@
 import React from "react";
-import { createStyles, withStyles, WithStyles } from "@material-ui/core/styles";
+import { Theme, createStyles, withStyles, WithStyles } from "@material-ui/core/styles";
 import CircularProgress from '@material-ui/core/CircularProgress';
 import Typography from '@material-ui/core/Typography';
-import theme from '../../theme'
 export type LoadingProps = { children: React.ReactNode } & WithStyles<typeof styles>;
 const Loading = ({ classes, children }: LoadingProps) => {
     return (
@@ -13,7 +12,7 @@ const Loading = ({ classes, children }: LoadingProps) => {
     );
 };
 
-const styles = createStyles({
+const styles = (theme: Theme) => createStyles({
     root: {
         display: "flex",
         minHeight: "100vh",

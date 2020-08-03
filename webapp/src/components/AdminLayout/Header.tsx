@@ -9,13 +9,12 @@ import IconButton from '@material-ui/core/IconButton';
 import Link from '@material-ui/core/Link';
 import MenuIcon from '@material-ui/icons/Menu';
 import NotificationsIcon from '@material-ui/icons/Notifications';
-import Tab from '@material-ui/core/Tab';
-import Tabs from '@material-ui/core/Tabs';
 import Toolbar from '@material-ui/core/Toolbar';
 import Tooltip from '@material-ui/core/Tooltip';
 import Typography from '@material-ui/core/Typography';
 import { createStyles, Theme, withStyles, WithStyles } from '@material-ui/core/styles';
-
+import TabsHeader from './TabsHeader';
+import { NavigationTabList } from './NavigationTab.types'
 const lightColor = 'rgba(255, 255, 255, 0.7)';
 
 const styles = (theme: Theme) =>
@@ -41,13 +40,8 @@ const styles = (theme: Theme) =>
         },
     });
 
-interface HeaderProps extends WithStyles<typeof styles> {
-    onDrawerToggle: () => void;
-}
-
-function Header(props: HeaderProps) {
-    const { classes, onDrawerToggle } = props;
-
+export type HeaderProps = { onDrawerToggle: () => void } & NavigationTabList & WithStyles<typeof styles>
+function Header({ classes, onDrawerToggle, tabs }: HeaderProps) {
     return (
         <React.Fragment>
             <AppBar color="primary" position="sticky" elevation={0}>
@@ -97,7 +91,7 @@ function Header(props: HeaderProps) {
                     <Grid container alignItems="center" spacing={1}>
                         <Grid item xs>
                             <Typography color="inherit" variant="h5" component="h1">
-                                Authentication
+                                Roles
               </Typography>
                         </Grid>
                         <Grid item>
@@ -115,20 +109,7 @@ function Header(props: HeaderProps) {
                     </Grid>
                 </Toolbar>
             </AppBar>
-            <AppBar
-                component="div"
-                className={classes.secondaryBar}
-                color="primary"
-                position="static"
-                elevation={0}
-            >
-                <Tabs value={0} textColor="inherit">
-                    <Tab textColor="inherit" label="Users" />
-                    <Tab textColor="inherit" label="Sign-in method" />
-                    <Tab textColor="inherit" label="Templates" />
-                    <Tab textColor="inherit" label="Usage" />
-                </Tabs>
-            </AppBar>
+            <TabsHeader tabs={tabs} />
         </React.Fragment>
     );
 }

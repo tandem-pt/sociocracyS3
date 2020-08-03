@@ -19,18 +19,19 @@ import TimerIcon from '@material-ui/icons/Timer';
 import SettingsIcon from '@material-ui/icons/Settings';
 import PhonelinkSetupIcon from '@material-ui/icons/PhonelinkSetup';
 import { Omit } from '@material-ui/types';
-import { Icon } from '@material-ui/core';
 
-type ActionItemType = {
+export type ActionItemType = {
     id: string,
     icon: React.ReactElement,
     active?: boolean,
     onClick?: () => void
 };
-type CategoryType = {
+
+export type CategoryType = {
     id: string,
     children: Array<ActionItemType>
 };
+
 const categories: Array<CategoryType> = [
     {
         id: 'Develop',
@@ -102,8 +103,7 @@ const styles = (theme: Theme) =>
 
 export interface NavigatorProps extends Omit<DrawerProps, 'classes'>, WithStyles<typeof styles> { }
 
-function Navigator(props: NavigatorProps) {
-    const { classes, ...other } = props;
+const Navigator = ({ classes, ...other }: NavigatorProps) => {
 
     return (
         <Drawer variant="permanent" {...other}>
