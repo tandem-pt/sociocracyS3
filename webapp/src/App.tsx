@@ -4,6 +4,7 @@ import {
 } from '@material-ui/core/styles';
 import './App.css';
 import { Auth0Provider } from "@auth0/auth0-react";
+import { CouchAuth } from './contexts'
 import Router from './router';
 import theme from './theme'
 
@@ -14,7 +15,9 @@ function App() {
         clientId={"" + process.env.REACT_APP_CLIENT_ID}
         redirectUri={window.location.origin}
       >
-        <Router />
+        <CouchAuth>
+          <Router />
+        </CouchAuth>
       </Auth0Provider>
     </ThemeProvider>
   );
