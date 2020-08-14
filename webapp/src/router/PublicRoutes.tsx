@@ -2,6 +2,7 @@ import React from 'react';
 import {
     Switch,
     Route,
+    Redirect
 } from "react-router-dom";
 import { Welcome, LoginRedirector } from '../screens';
 
@@ -10,7 +11,7 @@ import { Welcome, LoginRedirector } from '../screens';
  */
 export const PublicRoutes = () => {
     return <Switch>
-        <Route path="/" redictTo="/welcome" exact />
+        <Redirect from="/" to="/welcome" exact />
         <Route path="/welcome" component={Welcome} exact />
         <Route path="/login" component={LoginRedirector} />
     </Switch>

@@ -4,7 +4,7 @@ import Card from "@material-ui/core/Card";
 import CardHeader from "@material-ui/core/CardHeader";
 import CardContent from "@material-ui/core/CardContent";
 import CardActions from '@material-ui/core/CardActions';
-import { PrimaryButton, SecondaryButton } from '../../components';
+import { PrimaryButton } from '../../components';
 import {
     Link,
 } from "react-router-dom";

@@ -1,9 +1,9 @@
 import React, { useMemo } from 'react';
-import { createStyles, Theme, withStyles, WithStyles } from '@material-ui/core/styles';
+import { createStyles, withStyles, WithStyles } from '@material-ui/core/styles';
 import { NavigationTabList } from './NavigationTab.types';
-import { Route, Switch, useRouteMatch } from 'react-router-dom';
-
-const styles = (theme: Theme) =>
+import { Route, Switch, Redirect, useRouteMatch } from 'react-router-dom';
+import { compile } from 'path-to-regexp';
+const styles = () =>
     createStyles({
         root: { zIndex: 1 }
     });
@@ -11,14 +11,16 @@ const styles = (theme: Theme) =>
 export type ContentProps = {} & WithStyles<typeof styles> & NavigationTabList;
 
 function Content({ classes, tabs }: ContentProps) {
-    const [firstRoute] = tabs;
     const match = useRouteMatch();
-    const matchPath = useMemo(() => match.path[match.path.length - 1] === '/' ? match.path.substr(0, -1) : match.path, [match.path]);
+    const pathMatch = useMemo<string>(() => {
+        const pathMatcher = compile(match.path);
+        return pathMatcher(match.params);
+    }, [match.path, match.params]);
     return (
         <div className={classes.root}>
             <Switch>
-                {tabs.map(({ path, component }) => <Route path={`${matchPath}/${path}`} component={component} key={path} exact />)}
-                {firstRoute && <Route path={matchPath} component={firstRoute.component} key={firstRoute.path} exact />}
+                {tabs.map(({ path, component }) => <Route path={`${pathMatch}${path}`} component={component} key={path} exact />)}
+                {tabs.length > 0 && <Redirect from={pathMatch} to={`${pathMatch}${tabs[0].path}`} exact />}
             </Switch>
         </div>
 

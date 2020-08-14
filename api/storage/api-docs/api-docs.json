@@ -1,0 +1,111 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "Sociocracy30 API",
+        "version": "0.0.1"
+    },
+    "paths": {
+        "/api/v1/couch/token": {
+            "post": {
+                "description": "Create a token for a couchdb instance protected by JWT verification.",
+                "externalDocs": {
+                    "url": "https://docs.couchdb.org/en/stable/api/server/authn.html#jwt-authentication",
+                    "description": "CouchDB JWT Authorization documentation"
+                },
+                "operationId": "App\\Http\\Controllers\\CouchDBController::createToken",
+                "responses": {
+                    "201": {
+                        "description": "A base64 encoded jwt token you can pass to a couch instance with `Authorization: Bearer <jwt>`",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "jwt": {
+                                            "type": "string",
+                                            "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "You should add Bearer header to your request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Forbidden"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Issue while checkin given token (can be expired or issued from someone else.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Unauthorized"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "The token is malformed.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Bad data"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "openId": {
+                            "openid": [],
+                            "profile": []
+                        }
+                    },
+                    {
+                        "bearer": []
+                    }
+                ]
+            }
+        }
+    },
+    "components": {
+        "securitySchemes": {
+            "openId": {
+                "type": "openIdConnect",
+                "name": "Open ID Connect",
+                "openIdConnectUrl": "https://tandemcaldas.eu.auth0.com/.well-known/openid-configuration"
+            },
+            "bearer": {
+                "type": "http",
+                "name": "Bearer id_token",
+                "bearerFormat": "JWT",
+                "scheme": "bearer"
+            }
+        }
+    }
+}

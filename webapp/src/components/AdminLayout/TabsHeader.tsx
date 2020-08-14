@@ -2,11 +2,11 @@ import React, { useMemo } from 'react';
 import AppBar from '@material-ui/core/AppBar';
 import Tab from '@material-ui/core/Tab';
 import Tabs from '@material-ui/core/Tabs';
-import { createStyles, Theme, withStyles, WithStyles } from '@material-ui/core/styles';
-import { useLocation, Link, useParams, useRouteMatch } from 'react-router-dom';
+import { createStyles, withStyles, WithStyles } from '@material-ui/core/styles';
+import { useLocation, Link } from 'react-router-dom';
 import { NavigationTabList } from './NavigationTab.types'
 
-const styles = (theme: Theme) =>
+const styles = () =>
     createStyles({
         secondaryBar: {
             zIndex: 0,
