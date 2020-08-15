@@ -19,6 +19,9 @@ import TimerIcon from '@material-ui/icons/Timer';
 import SettingsIcon from '@material-ui/icons/Settings';
 import PhonelinkSetupIcon from '@material-ui/icons/PhonelinkSetup';
 import { Omit } from '@material-ui/types';
+import { useOrganization, useCouchAuth } from '../../contexts';
+import { useHistory } from 'react-router-dom';
+import Skeleton from '@material-ui/lab/Skeleton/Skeleton';
 
 export type ActionItemType = {
     id: string,
@@ -104,27 +107,35 @@ const styles = (theme: Theme) =>
 export interface NavigatorProps extends Omit<DrawerProps, 'classes'>, WithStyles<typeof styles> { }
 
 const Navigator = ({ classes, ...other }: NavigatorProps) => {
+    const history = useHistory();
+    const { organization } = useOrganization();
+    const couchAuthState = useCouchAuth();
+    const [organizationID, organizationName] = couchAuthState.couchLoading === true ? [] : couchAuthState.user.organizations.filter(([orgID]) => orgID === organization)[0];
     return (
         <Drawer variant="permanent" {...other}>
             <List disablePadding>
                 <ListItem className={clsx(classes.firebase, classes.item, classes.itemCategory)}>
-                    Paperbase
-        </ListItem>
-                <ListItem className={clsx(classes.item, classes.itemCategory)}>
-                    <ListItemIcon className={classes.itemIcon}>
-                        <HomeIcon />
-                    </ListItemIcon>
-                    <ListItemText
-                        classes={{
-                            primary: classes.itemPrimary,
-                        }}
-                    >
-                        Project Overview
-          </ListItemText>
+                    Sociocracy S3
                 </ListItem>
+                {organizationName ?
+                    <ListItem
+                        className={clsx(classes.item, classes.itemCategory)}
+                        button
+                        onClick={() => history.push(`/organizations/${organizationID}/about`)}>
+                        <ListItemIcon className={classes.itemIcon}>
+                            <HomeIcon />
+                        </ListItemIcon>
+                        <ListItemText
+                            classes={{
+                                primary: classes.itemPrimary,
+                            }}
+                        >
+                            {organizationName}
+                        </ListItemText>
+                    </ListItem> : <Skeleton variant="rect" height={61} />}
                 {categories.map(({ id, children }) => (
                     <React.Fragment key={id}>
-                        <ListItem className={classes.categoryHeader}>
+                        <ListItem className={classes.categoryHeader} >
                             <ListItemText
                                 classes={{
                                     primary: classes.categoryHeaderPrimary,

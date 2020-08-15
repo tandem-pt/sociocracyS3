@@ -6,6 +6,7 @@ import CardHeader from '@material-ui/core/CardHeader';
 import CardContent from '@material-ui/core/CardContent';
 import Typography from '@material-ui/core/Typography';
 import Input from '@material-ui/core/Input';
+import Button from '@material-ui/core/Button';
 import CardActionArea from '@material-ui/core/CardActionArea';
 import CircularProgress from '@material-ui/core/CircularProgress';
 
@@ -19,10 +20,11 @@ import { useAuth0 } from "@auth0/auth0-react";
 import { useCouchAuth } from '../../contexts';
 import { useHistory } from 'react-router-dom';
 import Skeleton from '@material-ui/lab/Skeleton/Skeleton';
+import { withTranslation, WithTranslation } from 'react-i18next';
 
-export type NewOrganizationProps = WithStyles<typeof styles>;
+export type NewOrganizationProps = WithStyles<typeof styles> & WithTranslation;
 
-const NewOrganization = ({ classes }: NewOrganizationProps) => {
+const NewOrganization = ({ classes, t }: NewOrganizationProps) => {
     const [organizationName, setOrganizationName] = useState<string>("");
     const history = useHistory();
     const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -43,8 +45,10 @@ const NewOrganization = ({ classes }: NewOrganizationProps) => {
             });
             if (response.ok) {
                 const { id: organizationID } = await response.json();
-                await
-                    history.push(`/organizations/${organizationID}/members`);
+                if (couchAuthState.couchLoading === false) {
+                    await couchAuthState.getCouchToken()
+                }
+                history.push(`/organizations/${organizationID}/members`);
                 return;
             }
             throw new Error('Error while fetching ' + response.status);
@@ -60,21 +64,21 @@ const NewOrganization = ({ classes }: NewOrganizationProps) => {
         <form id="NewOrganization" aria-labelledby="NewOrganizationTips" aria-busy={isLoading} onSubmit={onSubmit}>
             <Card raised>
                 <CardHeader
-                    title="New Organisation"
+                    title={t('new.title')}
                 />
 
                 <CardMedia className={classes.media} image={Logo} />
 
                 <CardContent>
                     <Typography variant="body1" id="NewOrganizationTips" gutterBottom>
-                        Pick a name for your organisation
-                                </Typography>
-                    <Input type="text" name="name" id="NewOrganizationName" autoFocus={true} className={classes.input} onChange={({ target: { value } }) => {
+                        {t('new.fields.name.label')}
+                    </Typography>
+                    <Input aria-label={t('new.fields.name.tips')} type="text" name="name" id="NewOrganizationName" autoFocus={true} className={classes.input} onChange={({ target: { value } }) => {
                         setOrganizationName(value);
                     }} />
                 </CardContent>
                 <CardActionArea
-                    component={PrimaryButton}
+                    component={Button}
                     className={classes.actions}
                     color="primary"
                     variant="contained"
@@ -82,17 +86,17 @@ const NewOrganization = ({ classes }: NewOrganizationProps) => {
                     disabled={organizationName.length < 1}
                     type="submit"
                 >
-                    CREATE {isLoading && <CircularProgress size={12} color="secondary" className={classes.loading} />}
+                    <span>{t('new.submit_btn')} {isLoading && <CircularProgress size={12} color="secondary" className={classes.loading} />}</span>
                 </CardActionArea>
             </Card>
 
         </form>
         {couchAuthState.couchLoading === false
             && couchAuthState.user.organizations.length > 0
-            && <List className={classes.organizations} component="nav">
+            && <List className={classes.organizations} dense component="nav">
                 <ListSubheader>
-                    access the organisations you've already create
-                     </ListSubheader>
+                    {t('new.organizations')}
+                </ListSubheader>
                 {couchAuthState.user.organizations.map(([organizationID, organizationName]) => <ListItem button key={organizationID} onClick={() => history.push(`/organizations/${organizationID}`)}>{organizationName}</ListItem>)}
             </List>}
         {couchAuthState.couchLoading === true && <Skeleton className={classes.organizations} style={{ opacity: 0.3 }} animation="pulse" variant="rect" width={320} height={120} />}
@@ -126,5 +130,4 @@ const styles = (theme: Theme) => createStyles({
         marginTop: theme.spacing(6),
     }
 });
-
-export default withStyles(styles)(NewOrganization);
+export default withTranslation('organizations')(withStyles(styles)(NewOrganization));

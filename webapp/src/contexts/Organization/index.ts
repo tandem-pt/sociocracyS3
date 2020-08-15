@@ -3,4 +3,5 @@ export {
   useOrganizationDB,
   useOrganizationGet,
   useOrganizationFind,
+  useOrganization,
 } from './OrganizationProvider';

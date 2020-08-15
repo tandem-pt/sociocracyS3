@@ -1,0 +1,19 @@
+{
+    "title": "Your organization",
+    "tabs": {
+        "about": "About",
+        "learn": "Learn Sociocracy",
+        "members": "Users and permissions"
+    },
+    "new": {
+        "title": "Create circle of collaboration ",
+        "fields": {
+            "name": {
+                "label": "Your organization's name",
+                "tips": "Enter your organization name to create a new organization and start collaborating"
+            }
+        },
+        "organizations": "Your Organizations",
+        "submit_btn": "Create"
+    }
+}

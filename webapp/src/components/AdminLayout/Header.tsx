@@ -40,8 +40,8 @@ const styles = (theme: Theme) =>
         },
     });
 
-export type HeaderProps = { onDrawerToggle: () => void } & NavigationTabList & WithStyles<typeof styles>
-function Header({ classes, onDrawerToggle, tabs }: HeaderProps) {
+export type HeaderProps = { onDrawerToggle: () => void, title: string } & NavigationTabList & WithStyles<typeof styles>
+function Header({ classes, onDrawerToggle, tabs, title }: HeaderProps) {
     return (
         <React.Fragment>
             <AppBar color="primary" position="sticky" elevation={0}>
@@ -91,8 +91,8 @@ function Header({ classes, onDrawerToggle, tabs }: HeaderProps) {
                     <Grid container alignItems="center" spacing={1}>
                         <Grid item xs>
                             <Typography color="inherit" variant="h5" component="h1">
-                                Roles
-              </Typography>
+                                {title}
+                            </Typography>
                         </Grid>
                         <Grid item>
                             <Button className={classes.button} variant="outlined" color="inherit" size="small">

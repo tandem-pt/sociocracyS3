@@ -4,16 +4,17 @@ import PouchDBSync from '../PouchDBSync'
 import OrganizationContext, { OrganizationContextType } from './OrganizationContext'
 export type OrganizationProps = React.PropsWithChildren<OrganizationContextType>
 
+export const useOrganization = () => useContext<OrganizationContextType>(OrganizationContext)
 export const useOrganizationDB = () => {
-    const { organization } = useContext<OrganizationContextType>(OrganizationContext);
+    const { organization } = useOrganization();
     return useDB(organization);
 }
 export const useOrganizationGet = (getParams: any) => {
-    const { organization } = useContext<OrganizationContextType>(OrganizationContext);
+    const { organization } = useOrganization();
     return useGet(organization, getParams);
 }
 export const useOrganizationFind = (findParams: any) => {
-    const { organization } = useContext<OrganizationContextType>(OrganizationContext);
+    const { organization } = useOrganization();
     return useFind(organization, findParams);
 }
 

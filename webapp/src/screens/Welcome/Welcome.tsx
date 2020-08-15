@@ -9,18 +9,21 @@ import {
     Link,
 } from "react-router-dom";
 import Typography from "@material-ui/core/Typography";
+import { TFunction } from 'i18next'
+import { withTranslation, WithTranslation } from 'react-i18next';
 
-export interface WelcomeProps extends WithStyles<typeof styles> { }
-const Welcome = ({ classes }: WelcomeProps) => {
+export type WelcomeProps = WithStyles<typeof styles> & WithTranslation;
+
+const Welcome = ({ classes, t }: WelcomeProps) => {
     return (
         <div className={classes.root}>
             <Card >
-                <CardHeader title="Welcome" />
+                <CardHeader title={t('title')} />
                 <CardContent >
-                    <Typography>Hello</Typography>
+                    <Typography>{t('content')}</Typography>
                 </CardContent>
-                <CardActions>
-                    <Link component={({ navigate, ...props }) => <PrimaryButton contained {...props} />} to="/login" >Login</Link>
+                <CardActions className={classes.actions}>
+                    <Link component={({ navigate, ...props }) => <PrimaryButton contained {...props} />} to="/login" >{t('submit_btn')}</Link>
                 </CardActions>
             </Card>
         </div>
@@ -33,7 +36,11 @@ const styles = createStyles({
         minHeight: "100vh",
         alignItems: "center",
         justifyContent: "center",
+    },
+    actions: {
+        justifyContent: "flex-end",
+
     }
 });
 
-export default withStyles(styles)(Welcome);
+export default withTranslation('welcome')(withStyles(styles)(Welcome));

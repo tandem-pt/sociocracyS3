@@ -18,7 +18,18 @@
 $router->get('/', function () use ($router) {
     return $router->app->version();
 });
-
+$router->get('/locales/{locale:.*}.json', function ($locale) use ($router) {
+    $filename = "../resources/views/locales/$locale.json";
+    if (!file_exists($filename)) {
+        abort(404, 'Locale ' . $locale . ' not found');
+    }
+    $file = file_get_contents($filename);
+    $json = json_decode($file);
+    if (json_last_error() !== JSON_ERROR_NONE) {
+        abort(500, 'Malformated locale ' . $locale);
+    }
+    return response()->json($json, 200);
+});
 $router->group(['prefix' => 'api/v1'], function () use ($router) {
     $router->post('/organizations', ['uses' => 'OrganizationController@create']);
 });

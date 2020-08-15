@@ -22,9 +22,9 @@ const LoadingFullLayout = ({ classes }: LoadingProps) => (
             <Skeleton animation="wave" variant="text" />
         </Typography>
         <div className={classes.cards}>
-            <Skeleton animation="wave" variant="rect" className={classes.card} />
-            <Skeleton animation="wave" variant="rect" className={classes.card} />
-            <Skeleton animation="wave" variant="rect" className={classes.card} />
+            <Skeleton animation="wave" variant="text" />
+            <Skeleton animation="wave" variant="text" />
+            <Skeleton animation="wave" variant="text" />
         </div>
         <footer className={classes.footer}>
             <Copyright />
@@ -125,9 +125,9 @@ const styles = (theme: Theme) => createStyles({
             width: '91%'
         },
         top: (3 * 48) + 'px',
-        display: 'flex',
-        marginTop: theme.spacing(2),
-        justifyContent: 'space-evenly',
+        display: 'block',
+        marginTop: theme.spacing(6),
+        marginLeft: theme.spacing(4),
         width: 'calc(100% - 256px - 9%)'
 
     },

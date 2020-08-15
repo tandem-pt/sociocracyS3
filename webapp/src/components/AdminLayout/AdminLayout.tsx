@@ -10,14 +10,14 @@ import Hidden from '@material-ui/core/Hidden';
 import Navigator from './Navigator';
 import Content from './Content';
 import Header from './Header';
-import { NavigationTabList } from './NavigationTab.types'
 import Copyright from '../Copyright'
+import { useAdminLayout } from '../../contexts';
 
-export type AdminLayoutProps = WithStyles<typeof styles> & NavigationTabList;
+export type AdminLayoutProps = WithStyles<typeof styles>;
 
-const AdminLayout = ({ classes, tabs }: AdminLayoutProps) => {
+const AdminLayout = ({ classes, }: AdminLayoutProps) => {
     const [mobileOpen, setMobileOpen] = React.useState(false);
-
+    const { tabs, title } = useAdminLayout();
     const handleDrawerToggle = () => {
         setMobileOpen(!mobileOpen);
     };
@@ -39,7 +39,7 @@ const AdminLayout = ({ classes, tabs }: AdminLayoutProps) => {
                 </Hidden>
             </nav>
             <div className={classes.app}>
-                <Header onDrawerToggle={handleDrawerToggle} tabs={tabs} />
+                <Header onDrawerToggle={handleDrawerToggle} tabs={tabs} title={title} />
                 <main className={classes.main}>
                     <Content tabs={tabs} />
                 </main>
