@@ -18,8 +18,8 @@ const styles = (theme: Theme) => createStyles({
         display: "flex",
         minHeight: "100vh",
         alignItems: "center",
-        justifyContent: "center",
         flexDirection: "column",
+        paddingTop: theme.spacing(12)
     },
     footer: {
         position: 'absolute',

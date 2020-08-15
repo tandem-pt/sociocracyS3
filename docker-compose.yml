@@ -16,6 +16,7 @@ services:
             DB_DATABASE: ${MYSQL_DATABASE}
             DB_USERNAME: ${MYSQL_USER}
             DB_PASSWORD: ${MYSQL_PASSWORD}
+            TZ: Etc/GMT
             
     db:
         image: mariadb

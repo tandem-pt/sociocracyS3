@@ -19,8 +19,8 @@ function Content({ classes, tabs }: ContentProps) {
     return (
         <div className={classes.root}>
             <Switch>
-                {tabs.map(({ path, component }) => <Route path={`${pathMatch}${path}`} component={component} key={path} exact />)}
                 {tabs.length > 0 && <Redirect from={pathMatch} to={`${pathMatch}${tabs[0].path}`} exact />}
+                {tabs.map(({ path, component }) => <Route path={`${pathMatch}${path}`} component={component} key={path} exact />)}
             </Switch>
         </div>
 

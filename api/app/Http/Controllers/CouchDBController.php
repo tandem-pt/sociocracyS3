@@ -75,8 +75,11 @@ class CouchDBController extends Controller
             return response()->json([
                 "jwt" => \App\Services\CouchDB::inst()->createJWT($jwt)
             ], 201);
-        } catch (Exception $e) {
-            return response()->json(['error' => 'Unauthorized'], 401);
+        } catch (\Throwable $e) {
+            if (($e instanceof \DomainException) || ($e instanceof \UnexpectedValueException) ||  ($e instanceof \InvalidArgumentException)) {
+                return response()->json(['error' => 'Unauthorized', 'message' => $e->getMessage()], 401);
+            }
+            return response()->json(['error' => 'Server Error', 'message' => $e->getMessage()], 500);
         }
     }
 }

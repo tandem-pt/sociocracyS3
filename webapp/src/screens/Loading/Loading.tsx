@@ -6,9 +6,9 @@ import { useLocation, matchPath } from 'react-router-dom'
 import { Copyright } from '../../components'
 export type LoadingProps = WithStyles<typeof styles>;
 const LoadingCenteredLayout = ({ classes }: LoadingProps) => (
-    <div className={classes.root}>
+    <div className={`${classes.root} ${classes.root_center}`}>
         <Skeleton animation="wave" variant="rect" className={classes.center} />
-        <footer className={classes.footer + classes.footerCentered}>
+        <footer className={`${classes.footer} ${classes.footerCentered}`}>
             <Copyright />
         </footer>
     </div>
@@ -50,8 +50,12 @@ const styles = (theme: Theme) => createStyles({
         justifyContent: "center",
         flexDirection: "column",
     },
+    root_center: {
+        justifyContent: "inherit",
+        paddingTop: theme.spacing(12)
+    },
     center: {
-        width: '33.33%',
+        width: '20%',
         height: '33rem',
         opacity: 0.8
     },
@@ -82,7 +86,6 @@ const styles = (theme: Theme) => createStyles({
         opacity: 0.8
     },
     footer: {
-        height: '35px',
         position: 'fixed',
         left: '256px',
         [theme.breakpoints.down('xs')]: {

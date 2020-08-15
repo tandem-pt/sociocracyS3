@@ -1,5 +1,7 @@
 FROM debian:stretch
 
+ENV TZ=Etc/GMT
+
 RUN apt-get update --fix-missing && apt-get upgrade -y && apt-get install -y \
 vim build-essential gcc curl wget make lsb-release apt-transport-https ca-certificates
 

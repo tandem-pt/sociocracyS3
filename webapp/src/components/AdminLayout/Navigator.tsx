@@ -104,7 +104,6 @@ const styles = (theme: Theme) =>
 export interface NavigatorProps extends Omit<DrawerProps, 'classes'>, WithStyles<typeof styles> { }
 
 const Navigator = ({ classes, ...other }: NavigatorProps) => {
-
     return (
         <Drawer variant="permanent" {...other}>
             <List disablePadding>

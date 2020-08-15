@@ -5,6 +5,9 @@ use Illuminate\Http\Request;
 use App\JWT\Decoder;
 use App\Services\User;
 use \Symfony\Component\HttpKernel\Exception\HttpException;
+use Illuminate\Validation\ValidationException;
+
+;
 
 class OrganizationController extends Controller
 {
@@ -75,20 +78,24 @@ class OrganizationController extends Controller
         }
         try {
             $inputs = $request->only(['name']);
-
+            \Firebase\JWT\JWT::$leeway = 10;
             $userJWT = Decoder::decode($jwt);
             $user = User::inst($userJWT->sub);
             if (!$request->has('name')) {
-                return response()->json(['error' => 'Bad data', 'inputs' => json_encode($request->all())], 400);
+                return response()->json(['error' => 'Missing organization name'], 400);
             }
             return response()->json([
                "id" => $user->addToOrganization($request->input('name'))
             ], 201);
+        } catch (ValidationException $e) {
+            return response()->json(['error' => $e->getMessage(), 'errors' => $e->errors()], 400);
         } catch (HttpException $e) {
             return response()->json(['error' => $e->getMessage()], $e->getStatusCode());
-        } catch (Exception $e) {
-            return response()->json(['error' => 'Unauthorized'], 401);
+        } catch (\Exception $e) {
+            if (($e instanceof \DomainException) || ($e instanceof \UnexpectedValueException) ||  ($e instanceof \InvalidArgumentException)) {
+                return response()->json(['error' => 'Unauthorized', 'message' => $e->getMessage()], 401);
+            }
+            return response()->json(['error' => 'Server Error'], 500);
         }
     }
 }
-    

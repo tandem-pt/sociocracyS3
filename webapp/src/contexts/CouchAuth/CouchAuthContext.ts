@@ -6,10 +6,10 @@ export type CouchAuthLoading = {
 export type CouchAuthValue = {
   jwt: string;
   user: {
-    organizations: Array<string>;
+    organizations: Array<string[]>;
     database: string;
     sub: string;
-    roles: Array<string>;
+    roles: string[];
     isAdmin: (organization: string) => boolean;
   };
   couchLoading: false;

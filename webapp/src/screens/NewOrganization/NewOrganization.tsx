@@ -6,7 +6,7 @@ import CardHeader from '@material-ui/core/CardHeader';
 import CardContent from '@material-ui/core/CardContent';
 import Typography from '@material-ui/core/Typography';
 import Input from '@material-ui/core/Input';
-import CardActions from '@material-ui/core/CardActions';
+import CardActionArea from '@material-ui/core/CardActionArea';
 import CircularProgress from '@material-ui/core/CircularProgress';
 
 import { Theme, createStyles, withStyles, WithStyles } from "@material-ui/core/styles";
@@ -18,6 +18,7 @@ import ListSubheader from '@material-ui/core/ListSubheader';
 import { useAuth0 } from "@auth0/auth0-react";
 import { useCouchAuth } from '../../contexts';
 import { useHistory } from 'react-router-dom';
+import Skeleton from '@material-ui/lab/Skeleton/Skeleton';
 
 export type NewOrganizationProps = WithStyles<typeof styles>;
 
@@ -43,7 +44,7 @@ const NewOrganization = ({ classes }: NewOrganizationProps) => {
             if (response.ok) {
                 const { id: organizationID } = await response.json();
                 await
-                    history.push(`/organizations/${organizationID}`);
+                    history.push(`/organizations/${organizationID}/members`);
                 return;
             }
             throw new Error('Error while fetching ' + response.status);
@@ -72,20 +73,29 @@ const NewOrganization = ({ classes }: NewOrganizationProps) => {
                         setOrganizationName(value);
                     }} />
                 </CardContent>
-                <CardActions className={classes.actions}>
-                    <PrimaryButton type="submit" size="large" centerRipple disabled={organizationName.length < 1}>CREATE{isLoading && <CircularProgress size={12} color="primary" className={classes.loading} />}</PrimaryButton>
-                </CardActions>
+                <CardActionArea
+                    component={PrimaryButton}
+                    className={classes.actions}
+                    color="primary"
+                    variant="contained"
+                    size="large"
+                    disabled={organizationName.length < 1}
+                    type="submit"
+                >
+                    CREATE {isLoading && <CircularProgress size={12} color="secondary" className={classes.loading} />}
+                </CardActionArea>
             </Card>
 
-            {couchAuthState.couchLoading === false
-                && couchAuthState.user.organizations.length > 0
-                && <List className={classes.organizations} component="nav">
-                    <ListSubheader>
-                        access the organisations you've already create
-                     </ListSubheader>
-                    {couchAuthState.user.organizations.map(organization => <ListItem button key={organization} href={`/organizations/${organization}`}>{organization}</ListItem>)}
-                </List>}
         </form>
+        {couchAuthState.couchLoading === false
+            && couchAuthState.user.organizations.length > 0
+            && <List className={classes.organizations} component="nav">
+                <ListSubheader>
+                    access the organisations you've already create
+                     </ListSubheader>
+                {couchAuthState.user.organizations.map(([organizationID, organizationName]) => <ListItem button key={organizationID} onClick={() => history.push(`/organizations/${organizationID}`)}>{organizationName}</ListItem>)}
+            </List>}
+        {couchAuthState.couchLoading === true && <Skeleton className={classes.organizations} style={{ opacity: 0.3 }} animation="pulse" variant="rect" width={320} height={120} />}
     </PlainLayout >
 };
 
@@ -95,17 +105,23 @@ const styles = (theme: Theme) => createStyles({
     input: {
         width: '100%'
     },
+    loading: {
+        marginLeft: theme.spacing(1)
+    },
     actions: {
         marginTop: theme.spacing(2),
+        textAlign: 'center',
+        paddingTop: theme.spacing(2),
+        paddingBottom: theme.spacing(2),
+        borderTopRightRadius: 0,
+        borderTopLeftRadius: 0,
     },
     media: {
         marginBottom: theme.spacing(2),
         height: '160px',
         backgroundSize: 'contain'
     },
-    loading: {
-        marginLeft: theme.spacing(1)
-    },
+
     organizations: {
         marginTop: theme.spacing(6),
     }

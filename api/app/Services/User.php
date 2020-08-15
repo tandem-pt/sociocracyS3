@@ -4,7 +4,7 @@ namespace App\Services;
 use \Symfony\Component\HttpKernel\Exception\HttpException;
 use App\UserOrganization;
 use Illuminate\Support\Facades\DB;
-
+use Illuminate\Validation\ValidationException;
 use PHPOnCouch\Couch;
 use PHPOnCouch\CouchClient;
 use PHPOnCouch\CouchAdmin;
@@ -42,13 +42,18 @@ class User
         if (is_null($sub)) {
             $sub = $this->sub;
         }
+        
         $organizationDatabase = 'org-' . md5($organizationName);
         $client = $this->dbClient($organizationDatabase);
-        if (!$client->databaseExists() && $sub !== $this->sub) {
+        $isCreating = !$client->databaseExists();
+
+        if ($isCreating && $sub !== $this->sub) {
             throw new HttpException(403, 'Forbidden');
         }
-        if (!$client->databaseExists()) {
+        if ($isCreating) {
             $client->createDatabase();
+            $admin = $this->dbAdmin($client);
+            $admin->addDatabaseMemberRole("admin.$organizationDatabase");
         } else {
             // Database already exists, be sure the authenticated user
             // is already assigned in the database.
@@ -56,13 +61,30 @@ class User
                 throw new HttpException(403, 'Forbidden, DB already exists and you have no access to it.');
             }
         }
-
-        $admin = $this->dbAdmin($client);
-        $admin->addDatabaseMemberRole("admin.$organizationDatabase");
-        
-        DB::table('user_organizations')->insertOrIgnore(
-            ['user_id' => $this->sub, 'organization' => $organizationDatabase]
-        );
+        DB::beginTransaction();
+        try {
+            DB::table('user_organizations')->insertOrIgnore(
+                ['user_id' => $this->sub, 'organization' => $organizationDatabase]
+            );
+            if ($isCreating) {
+                DB::table('organization_metas')->insert(
+                    [
+                        'creator_id' => $this->sub,
+                        'organization' => $organizationDatabase,
+                        'name' => $organizationName
+                    ]
+                );
+            }
+        } catch (ValidationException $e) {
+            // Rollback and then redirect
+            // back to form with errors
+            DB::rollback();
+            throw $e;
+        } catch (\Exception $e) {
+            DB::rollback();
+            throw new HttpException(400, 'Bad data. ' . $e->getMessage());
+        }
+        DB::commit();
         return $organizationDatabase;
     }
 
@@ -113,6 +135,17 @@ class User
         );
     }
 
+    public function organizationNames()
+    {
+        return UserOrganization::select('name')
+            ->where('user_id', $this->sub)
+            ->join('organization_metas', 'user_organizations.organization', '=', 'organization_metas.organization')
+            ->select('organization_metas.name')
+            ->get()
+            ->map(function ($org) {
+                return $org->name;
+            })->flatten()->all();
+    }
     
     public function databaseName()
     {

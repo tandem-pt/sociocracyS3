@@ -14,9 +14,12 @@ const CouchAuth = ({ children }: CouchAuthProps) => {
 
     const parseUserOrganizations = (user: any) => {
         const roles = user["_couchdb.roles"] as Array<string>;
-        return roles.filter((role: string) => role !== `admin.${user['https://sociocracy30.io/userDB']}`).map((couchRole: string) => {
+        const dbNames = user.dbNames as Array<string>;
+        console.log({ user })
+        return roles.filter((role: string) => role !== `admin.${user['https://sociocracy30.io/userDB']}`).map((couchRole: string, index) => {
             const [, database] = couchRole.split('.');
-            return "" + database;
+
+            return ["" + database, "" + dbNames[index]];
         }, {});
     }
 
@@ -28,7 +31,6 @@ const CouchAuth = ({ children }: CouchAuthProps) => {
             await logout();
         }
         setIsLoading(true);
-        setCouchAuthState({ couchLoading: true });
         if (retry > 1) {
             console.log('Try to connect to couch in 3sec');
             await new Promise((resolve) => setTimeout(resolve, 3000));
