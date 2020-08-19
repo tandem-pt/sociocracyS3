@@ -2,13 +2,30 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Contracts\CouchDB\Auth as CouchDBAuth;
 
 class CouchDBController extends Controller
 {
+    /**
+     * The user repository instance.
+     */
+    protected $auth;
+
+    /**
+     * Create a new controller instance.
+     *
+     * @param  CouchDBAuth  $auth
+     * @return void
+     */
+    public function __construct(CouchDBAuth $auth)
+    {
+        $this->auth = $auth;
+    }
 
     /**
      * @OA\Post(
      *     path="/api/v1/couch/token",
+     *     tags={"CouchDB"},
      *     description="Create a token for a couchdb instance protected by JWT verification.",
      *     security={
      *         {"openId": {"openid": {}, "profile": {} }},
@@ -73,7 +90,7 @@ class CouchDBController extends Controller
         }
         try {
             return response()->json([
-                "jwt" => \App\Services\CouchDB::inst()->createJWT($jwt)
+                "jwt" => $this->auth->createJWT($jwt)
             ], 201);
         } catch (\Throwable $e) {
             if (($e instanceof \DomainException) || ($e instanceof \UnexpectedValueException) ||  ($e instanceof \InvalidArgumentException)) {

@@ -4,6 +4,7 @@ services:
         build: docker/api
         depends_on: 
             - db
+            - mailcatcher
         env_file: ./.env
         ports:
             - "9000:80"
@@ -17,7 +18,12 @@ services:
             DB_USERNAME: ${MYSQL_USER}
             DB_PASSWORD: ${MYSQL_PASSWORD}
             TZ: Etc/GMT
-            
+
+    mailcatcher:
+        image: yappabe/mailcatcher
+        ports:
+            - "2525:1025"
+            - "9001:1080"
     db:
         image: mariadb
         restart: always

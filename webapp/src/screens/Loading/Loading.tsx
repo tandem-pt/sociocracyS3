@@ -35,7 +35,10 @@ const LoadingFullLayout = ({ classes }: LoadingProps) => (
 const Loading = (props: LoadingProps) => {
     const location = useLocation();
     const fullLayout = [
-        (path: string) => matchPath(path, { path: '/organizations/new', exact: true })
+        (path: string) => matchPath(path, { path: '/', exact: true }),
+        (path: string) => matchPath(path, { path: '/organizations/new', exact: true }),
+        (path: string) => matchPath(path, { path: '/participate', exact: true }),
+        (path: string) => matchPath(path, { path: '/welcome', exact: true })
     ];
     return fullLayout.filter((func) => func(location.pathname)).length > 0
         ? <LoadingCenteredLayout {...props} />

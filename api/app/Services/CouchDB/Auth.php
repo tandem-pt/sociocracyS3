@@ -1,29 +1,22 @@
 <?php
-namespace App\Services;
+namespace App\Services\CouchDB;
 
+use App\Contracts\CouchDB\Auth as AuthInterface;
 use \App\JWT\Decoder;
 use Firebase\JWT\JWT;
-use PHPOnCouch\Couch;
-use PHPOnCouch\CouchClient;
-use PHPOnCouch\CouchAdmin;
+use \App\Services\UserRepository;
 
-class CouchDB
+class Auth implements AuthInterface
 {
-    private static $inst = null;
-
-    public static function inst()
+    protected $userRepository;
+    public function __construct(UserRepository $userRepository)
     {
-        if (self::$inst === null) {
-            self::$inst = new CouchDB();
-        }
-        return self::$inst;
+        $this->userRepository = $userRepository;
     }
-
     public function createJWT($oauth_jwt)
     {
-        \Firebase\JWT\JWT::$leeway = 10;
         $idToken = Decoder::decode($oauth_jwt);
-        $user = User::inst($idToken->sub);
+        $user = $this->userRepository->get();
         $payload = [
              "sub" => $idToken->sub,
              "aud" => $idToken->aud,

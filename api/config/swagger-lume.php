@@ -7,7 +7,7 @@ return [
         | Edit to set the api's title
         |--------------------------------------------------------------------------
          */
-        'title' => 'Sociocracy S3',
+        'title' => 'Swagger Lume API',
     ],
 
     'routes' => [
@@ -23,7 +23,7 @@ return [
         | Route for accessing parsed swagger annotations.
         |--------------------------------------------------------------------------
          */
-        'docs' => '/api',
+        'docs' => '/docs',
 
         /*
         |--------------------------------------------------------------------------
@@ -199,6 +199,8 @@ return [
     |--------------------------------------------------------------------------
      */
     'constants' => [
-        'OIDC_DISCOVERY_URL' => 'https://' . env('OAUTH2_DOMAIN', 'tandemcaldas.eu.auth0.com') . '/.well-known/openid-configuration'
+        "OIDC_DISCOVERY_URL" =>  getenv('OIDC_DISCOVERY_URL')
+
+
     ],
 ];

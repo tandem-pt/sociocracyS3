@@ -9,6 +9,7 @@ class Decoder
 {
     public static function decode($jwt)
     {
+        \Firebase\JWT\JWT::$leeway = 10;
         return JWT::decode(
             $jwt,
             self::keySet(),
@@ -25,8 +26,8 @@ class Decoder
             if (!getenv('OAUTH2_DOMAIN')) {
                 throw new \Exception('Missing OAUTH2_DOMAIN env key');
             }
-            $tokenIssuer = 'https://' . getenv('OAUTH2_DOMAIN');
-            $serializedJwks = file_get_contents($tokenIssuer . '/.well-known/jwks.json');
+            $tokenIssuer = getenv('OAUTH2_DOMAIN');
+            $serializedJwks = file_get_contents($tokenIssuer . '.well-known/jwks.json');
             // Save keySet for 1 day
             Cache::put('auth2_jwks', $serializedJwks, 86400);
         }

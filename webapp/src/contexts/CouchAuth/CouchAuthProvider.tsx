@@ -41,6 +41,7 @@ const CouchAuth = ({ children }: CouchAuthProps) => {
             headers: {
                 'Authorization': 'Bearer ' + idToken,
             },
+            credentials: "include"
         });
         const { jwt } = await fetchData.json();
         if (!jwt) {

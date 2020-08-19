@@ -27,7 +27,6 @@ $app->withFacades();
 
 $app->withEloquent();
 
-$app->configure('swagger-lume');
 
 /*
 |--------------------------------------------------------------------------
@@ -49,8 +48,28 @@ $app->singleton(
     Illuminate\Contracts\Console\Kernel::class,
     App\Console\Kernel::class
 );
+$app->singleton(
+    App\Contracts\CouchDB\Auth::class,
+    App\Services\CouchDB\Auth::class
+);
+$app->bind(
+    Illuminate\Contracts\Auth\Guard::class,
+    App\Services\OAuth2Guard::class
+);
+$app->bind(
+    Illuminate\Contracts\Auth\Authenticatable::class,
+    App\Services\OAuth2\Guard::class
+);
 
 $app->register(\SwaggerLume\ServiceProvider::class);
+$app->register(Illuminate\Mail\MailServiceProvider::class);
+$app->register(Flipbox\LumenGenerator\LumenGeneratorServiceProvider::class);
+
+$app->instance('path.config', env("STORAGE_DIR", app()->basePath()) . DIRECTORY_SEPARATOR . 'config');
+$app->instance('path.public', env("STORAGE_DIR", app()->basePath()) . DIRECTORY_SEPARATOR . 'public');
+class_alias(\Illuminate\Support\Facades\Request::class, "\Request");
+class_alias(\Illuminate\Support\Facades\Config::class, "\Config");
+
 
 /*
 |--------------------------------------------------------------------------
@@ -64,6 +83,14 @@ $app->register(\SwaggerLume\ServiceProvider::class);
 */
 
 $app->configure('app');
+$app->configure('beautymail');
+$app->configure('swagger-lume');
+$app->configure('cors');
+
+$app->configure('mail');
+$app->alias('mailer', Illuminate\Mail\Mailer::class);
+$app->alias('mailer', Illuminate\Contracts\Mail\Mailer::class);
+$app->alias('mailer', Illuminate\Contracts\Mail\MailQueue::class);
 
 /*
 |--------------------------------------------------------------------------
@@ -77,12 +104,13 @@ $app->configure('app');
 */
 
 $app->middleware([
-    App\Http\Middleware\CorsMiddleware::class
+    Fruitcake\Cors\HandleCors::class
+]);
+$app->routeMiddleware([
+    'auth' => App\Http\Middleware\Authenticate::class
 ]);
 
-// $app->routeMiddleware([
-//     'auth' => App\Http\Middleware\Authenticate::class,
-// ]);
+
 
 /*
 |--------------------------------------------------------------------------
@@ -95,8 +123,13 @@ $app->middleware([
 |
 */
 
-// $app->register(App\Providers\AppServiceProvider::class);
-// $app->register(App\Providers\AuthServiceProvider::class);
+$app->register(App\Providers\AppServiceProvider::class);
+$app->register(
+    Snowfire\Beautymail\BeautymailServiceProvider::class
+);
+$app->register(Fruitcake\Cors\CorsServiceProvider::class);
+$app->register(App\Providers\AuthServiceProvider::class);
+
 // $app->register(App\Providers\EventServiceProvider::class);
 
 /*

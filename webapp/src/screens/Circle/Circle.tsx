@@ -1,5 +1,5 @@
-import React, { useMemo, Suspense, useEffect } from 'react';
-import AdminLayout, { NavigationTab } from '../../components/AdminLayout'
+import React, { Suspense, useEffect } from 'react';
+import AdminLayout from '../../components/AdminLayout'
 import { OnBoard } from '../../components'
 import CircularProgress from '@material-ui/core/CircularProgress';
 import { useParams } from 'react-router-dom';
@@ -33,7 +33,7 @@ const Circle = ({ t }: CircleType) => {
             },
         ]);
         setTitle(t('title'));
-    }, [setTabs, setTitle]);
+    }, [setTabs, setTitle, t]);
     return <Organization organization={organizationID}><AdminLayout /></Organization>
 }
 

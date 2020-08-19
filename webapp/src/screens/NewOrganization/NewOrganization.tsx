@@ -42,6 +42,7 @@ const NewOrganization = ({ classes, t }: NewOrganizationProps) => {
                     'Authorization': 'Bearer ' + idToken,
                     'Content-Type': 'application/json'
                 },
+                credentials: "include"
             });
             if (response.ok) {
                 const { id: organizationID } = await response.json();
@@ -78,18 +79,18 @@ const NewOrganization = ({ classes, t }: NewOrganizationProps) => {
                     }} />
                 </CardContent>
                 <CardActionArea
+                    type="submit"
+                    onClick={onSubmit}
                     component={Button}
                     className={classes.actions}
                     color="primary"
                     variant="contained"
                     size="large"
                     disabled={organizationName.length < 1}
-                    type="submit"
                 >
-                    <span>{t('new.submit_btn')} {isLoading && <CircularProgress size={12} color="secondary" className={classes.loading} />}</span>
+                    <span>{t('new.submitBtn')} {isLoading && <CircularProgress size={12} color="secondary" className={classes.loading} />}</span>
                 </CardActionArea>
             </Card>
-
         </form>
         {couchAuthState.couchLoading === false
             && couchAuthState.user.organizations.length > 0

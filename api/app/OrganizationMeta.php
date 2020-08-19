@@ -5,7 +5,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class OrganizationMeta extends Model
 {
-    protected $table = "organization_meta";
+    protected $table = "organization_metas";
     protected $fillable = [
         "creator_id",
         "organization",

@@ -18,7 +18,7 @@ const PouchDBSync = ({ database, children }: PouchDBSyncProps) => {
         const fetchCouch = async (url: string | Request,
             opts?: RequestInit) => {
             if (!opts) opts = {};
-            opts.credentials = 'omit';
+            opts.credentials = 'include';
             opts.headers = {
                 'Authorization': `Bearer ${couchAuthState.jwt}`,
                 'Content-Type': 'application/json',

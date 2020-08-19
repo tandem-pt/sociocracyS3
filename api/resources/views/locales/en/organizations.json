@@ -2,7 +2,7 @@
     "title": "Your organization",
     "tabs": {
         "about": "About",
-        "learn": "Learn Sociocracy",
+        "learn": "Learn Sociocracy 3.0",
         "members": "Users and permissions"
     },
     "new": {
@@ -14,6 +14,25 @@
             }
         },
         "organizations": "Your Organizations",
-        "submit_btn": "Create"
+        "submitBtn": "Create"
+    },
+    "members": {
+        "list": {
+            "title": "Organization members",
+            "accepted_at": "Joined {{when}}",
+            "accepted_chip": "Accepted",
+            "invited_at": "Invited {{when}}",
+            "invited_chip": "Invited",
+            "me": "You"
+        },
+        "invite": {
+            "title": "Invite new members",
+            "subtitle": "New members will see your organization details, they won't have any roles and won't be assigned to any circles. ",
+            "emailLabel": "Emails to invite",
+            "helpText": "Paste or write emails separated by a comma, space or tab.",
+            "submitBtn": "Send invite",
+            "submitBtn_zero": "Send invite",
+            "submitBtn_plural": "Send {{count}} invites"
+        }
     }
 }

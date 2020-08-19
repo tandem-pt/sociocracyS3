@@ -18,6 +18,7 @@
 $router->get('/', function () use ($router) {
     return $router->app->version();
 });
+
 $router->get('/locales/{locale:.*}.json', function ($locale) use ($router) {
     $filename = "../resources/views/locales/$locale.json";
     if (!file_exists($filename)) {
@@ -30,10 +31,20 @@ $router->get('/locales/{locale:.*}.json', function ($locale) use ($router) {
     }
     return response()->json($json, 200);
 });
-$router->group(['prefix' => 'api/v1'], function () use ($router) {
-    $router->post('/organizations', ['uses' => 'OrganizationController@create']);
-});
 
-$router->group(['prefix' => 'api/v1/couch'], function () use ($router) {
-    $router->post('/token', ['uses' => 'CouchDBController@createToken']);
+$router->group(['prefix' => '/api/v1'], function () use ($router) {
+    // Private routes
+    $router->group(['middleware' => 'auth'], function () use ($router) {
+        $router->post('/organizations', ['uses' => 'OrganizationsController@create']);
+        
+        $router->get('/members', ['uses' => 'MembersController@index']);
+        $router->post('/members', ['uses' => 'MembersController@create']);
+        $router->post('/members/bulks', ['uses' => 'MembersController@bulks']);
+        $router->put('/members/{invitation_id}', ['uses' => 'MembersController@update']);
+    
+        $router->post('couch/token', ['uses' => 'CouchDBController@createToken']);
+    });
+
+    // Public routes
+    $router->get('/members/{invitation_id}', ['uses' => 'MembersController@get']);
 });

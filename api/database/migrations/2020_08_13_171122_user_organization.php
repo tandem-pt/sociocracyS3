@@ -15,10 +15,9 @@ class UserOrganization extends Migration
     {
         Schema::create('user_organizations', function (Blueprint $table) {
             $table->increments('id');
-            $table->string('user_id');
+            $table->string('user_id')->nullable();
             $table->string('organization');
             $table->timestamps();
-            $table->unique(['user_id', 'organization']);
         });
     }
 

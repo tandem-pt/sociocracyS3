@@ -7,6 +7,9 @@
     "paths": {
         "/api/v1/couch/token": {
             "post": {
+                "tags": [
+                    "CouchDB"
+                ],
                 "description": "Create a token for a couchdb instance protected by JWT verification.",
                 "externalDocs": {
                     "url": "https://docs.couchdb.org/en/stable/api/server/authn.html#jwt-authentication",
@@ -91,9 +94,361 @@
                     }
                 ]
             }
+        },
+        "/api/v1/members/_bulks": {
+            "post": {
+                "tags": [
+                    "Organization"
+                ],
+                "description": "Create or delete invitation by bulks, depending on given `command`  ",
+                "operationId": "App\\Http\\Controllers\\OrganizationController::bulks",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "bulks": {
+                                        "type": "array",
+                                        "items": {
+                                            "properties": {
+                                                "command": {
+                                                    "type": "string",
+                                                    "enum": [
+                                                        "create",
+                                                        "delete"
+                                                    ]
+                                                },
+                                                "organization_id": {
+                                                    "description": "Organization where the member is invited.",
+                                                    "type": "string"
+                                                },
+                                                "email": {
+                                                    "description": "Email to invite",
+                                                    "type": "string"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    }
+                                },
+                                "type": "object",
+                                "example": {
+                                    "_bulks": [
+                                        {
+                                            "command": "create",
+                                            "organization_id": "org-as13iasdj",
+                                            "email": "hadrien@tandem.pt"
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Docs answers",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "bulks": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/UserOrganization"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "You should add Bearer header to your request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Forbidden"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Issue while checkin given token (can be expired or issued from someone else.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Unauthorized"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Malformed query, probably malformated Authorization token or missing parameters.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Bad data"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "openId": {
+                            "openid": [],
+                            "profile": []
+                        }
+                    },
+                    {
+                        "bearer": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/members": {
+            "post": {
+                "tags": [
+                    "Organization"
+                ],
+                "description": "Invite a member to the organization specified `organizationID`. Will send an email to the invited member",
+                "operationId": "App\\Http\\Controllers\\OrganizationController::create",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "organization_id",
+                                    "email"
+                                ],
+                                "properties": {
+                                    "organization_id": {
+                                        "description": "Organization where the member is invited.",
+                                        "type": "string"
+                                    },
+                                    "email": {
+                                        "description": "Email to invite",
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object",
+                                "example": {
+                                    "organization_id": "org-as13iasdj",
+                                    "email": "hadrien@tandem.pt"
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "The invited member",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UserOrganization"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "You should add Bearer header to your request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Forbidden"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Issue while checkin given token (can be expired or issued from someone else.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Unauthorized"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Malformed query, probably malformated Authorization token or missing parameters.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Bad data"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "openId": {
+                            "openid": [],
+                            "profile": []
+                        }
+                    },
+                    {
+                        "bearer": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/organizations": {
+            "post": {
+                "tags": [
+                    "Organization"
+                ],
+                "description": "Create an organization for the given name.",
+                "operationId": "App\\Http\\Controllers\\OrganizationController::create",
+                "responses": {
+                    "201": {
+                        "description": "The created organization",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "id": {
+                                            "type": "string",
+                                            "example": "org-eyJzdWIiOiIxMjM0NTY3ODkw"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "You should add Bearer header to your request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Forbidden"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Issue while checkin given token (can be expired or issued from someone else.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Unauthorized"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "The token is malformed.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Bad data"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "openId": {
+                            "openid": [],
+                            "profile": []
+                        }
+                    },
+                    {
+                        "bearer": []
+                    }
+                ]
+            }
         }
     },
     "components": {
+        "schemas": {
+            "UserOrganization": {
+                "properties": {
+                    "id": {
+                        "type": "int64",
+                        "example": "23"
+                    },
+                    "created_at": {
+                        "type": "datetime",
+                        "example": "2017-02-02 18:31:45"
+                    },
+                    "email": {
+                        "description": "email used to invite, empty if accepted",
+                        "type": "string",
+                        "example": "john@doe.com"
+                    },
+                    "accepted_at": {
+                        "description": "If accepted, a date, if not `null`",
+                        "type": "datetime",
+                        "example": "2017-02-02 18:31:45"
+                    }
+                },
+                "type": "object",
+                "xml": {
+                    "name": "UserOrganization"
+                }
+            }
+        },
         "securitySchemes": {
             "openId": {
                 "type": "openIdConnect",
@@ -107,5 +462,15 @@
                 "scheme": "bearer"
             }
         }
-    }
+    },
+    "tags": [
+        {
+            "name": "CouchDB",
+            "description": "Authentication for CouchDB remote DB"
+        },
+        {
+            "name": "Organization",
+            "description": "All about organization"
+        }
+    ]
 }

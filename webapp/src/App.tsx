@@ -43,7 +43,6 @@ i18n
         : [i18nHTTP]
     },
     react: {
-      useSuspense: true,
       wait: true
     }
   });
@@ -54,6 +53,14 @@ function App() {
       <Auth0Provider domain={"" + process.env.REACT_APP_DOMAIN_ID}
         clientId={"" + process.env.REACT_APP_CLIENT_ID}
         redirectUri={window.location.origin}
+        onRedirectCallback={(appState?: any): void => {
+          window.history.replaceState(
+            {},
+            document.title,
+            appState?.returnTo ? `${appState.returnTo}?${appState.search}` : window.location.pathname
+          );
+          window.location.reload();
+        }}
       >
         <CouchAuth>
           <AdminLayout>

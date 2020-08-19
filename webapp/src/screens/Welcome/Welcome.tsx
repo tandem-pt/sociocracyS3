@@ -3,18 +3,18 @@ import { createStyles, withStyles, WithStyles } from "@material-ui/core/styles";
 import Card from "@material-ui/core/Card";
 import CardHeader from "@material-ui/core/CardHeader";
 import CardContent from "@material-ui/core/CardContent";
-import CardActions from '@material-ui/core/CardActions';
+import CardActionArea from '@material-ui/core/CardActionArea';
 import { PrimaryButton } from '../../components';
 import {
-    Link,
+    useHistory,
 } from "react-router-dom";
 import Typography from "@material-ui/core/Typography";
-import { TFunction } from 'i18next'
 import { withTranslation, WithTranslation } from 'react-i18next';
 
 export type WelcomeProps = WithStyles<typeof styles> & WithTranslation;
 
 const Welcome = ({ classes, t }: WelcomeProps) => {
+    const history = useHistory();
     return (
         <div className={classes.root}>
             <Card >
@@ -22,9 +22,14 @@ const Welcome = ({ classes, t }: WelcomeProps) => {
                 <CardContent >
                     <Typography>{t('content')}</Typography>
                 </CardContent>
-                <CardActions className={classes.actions}>
-                    <Link component={({ navigate, ...props }) => <PrimaryButton contained {...props} />} to="/login" >{t('submit_btn')}</Link>
-                </CardActions>
+                <CardActionArea className={classes.actions}
+                    component={PrimaryButton}
+                    size="large"
+                    onClick={() => {
+                        history.push("/login")
+                    }} contained>
+                    {t('submitBtn')}
+                </CardActionArea>
             </Card>
         </div>
     );
@@ -38,8 +43,9 @@ const styles = createStyles({
         justifyContent: "center",
     },
     actions: {
-        justifyContent: "flex-end",
-
+        textAlign: "center",
+        borderTopLeftRadius: 0,
+        borderTopRightRadius: 0,
     }
 });
 

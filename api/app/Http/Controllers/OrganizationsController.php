@@ -3,19 +3,24 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\JWT\Decoder;
-use App\Services\User;
-use \Symfony\Component\HttpKernel\Exception\HttpException;
+use App\Services\UserRepository;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 use Illuminate\Validation\ValidationException;
 
-;
-
-class OrganizationController extends Controller
+class OrganizationsController extends Controller
 {
+    protected $userRepository;
+
+    public function __construct(UserRepository $userRepository)
+    {
+        $this->userRepository = $userRepository;
+    }
 
     /**
      * @OA\Post(
      *     path="/api/v1/organizations",
      *     description="Create an organization for the given name.",
+     *     tags={"Organization"},
      *     security={
      *         {"openId": {"openid": {}, "profile": {} }},
      *         {"bearer": {}}
@@ -69,23 +74,15 @@ class OrganizationController extends Controller
      */
     public function create(Request $request)
     {
-        $jwt = $request->bearerToken();
-        if (empty($jwt)) {
-            return response()->json(['error' => 'Forbidden'], 403);
-        }
-        if (!preg_match('/^([a-zA-Z0-9_=]{4,})\.([a-zA-Z0-9_=]{4,})\.([a-zA-Z0-9_\-\+\/=]{4,})/', $jwt)) {
-            return response()->json(['error' => 'Bad data'], 400);
-        }
         try {
             $inputs = $request->only(['name']);
-            \Firebase\JWT\JWT::$leeway = 10;
-            $userJWT = Decoder::decode($jwt);
-            $user = User::inst($userJWT->sub);
+            $user = $this->userRepository->get();
+            $user->email = $user->getEmail();
             if (!$request->has('name')) {
                 return response()->json(['error' => 'Missing organization name'], 400);
             }
             return response()->json([
-               "id" => $user->addToOrganization($request->input('name'))
+               "id" => $user->createOrganization($request->input('name'))
             ], 201);
         } catch (ValidationException $e) {
             return response()->json(['error' => $e->getMessage(), 'errors' => $e->errors()], 400);

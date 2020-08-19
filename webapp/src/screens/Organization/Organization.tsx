@@ -7,6 +7,7 @@ import { withTranslation, WithTranslation } from 'react-i18next';
 type OrganizationType = WithTranslation;
 
 const Learn = lazy(() => import('../../components/Learn'));
+const OrganizationMembers = lazy(() => import('../../components/OrganizationMembers'));
 const fallback = <CircularProgress size={50} />;
 const Organization = ({ t }: OrganizationType) => {
     const { organization_id: organizationID } = useParams();
@@ -28,7 +29,7 @@ const Organization = ({ t }: OrganizationType) => {
             {
                 title: t('tabs.members'),
                 path: "members",
-                component: () => <div>Members</div>,
+                component: () => <Suspense fallback={fallback}><OrganizationMembers /></Suspense>,
             },
         ])
         setTitle(t('title'))

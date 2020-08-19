@@ -1,6 +1,15 @@
 {
     "title": "Sociocracy S3!",
     "content": "Supportive app for S3 social tecnology",
-    "submit_btn": "Enter"
-    
+    "submitBtn": "Enter",
+    "join": {
+        "title": "Join {{name}} organization !",
+        "signIn" : "Login or Register",
+        "participate": "Agree and participate",
+        "404": {
+            "title": "Expired or invalid link", 
+            "content": "This link expires once you accept an invitation.",
+            "return": "Return to the homepage"
+        }
+    }
 }
