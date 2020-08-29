@@ -6,7 +6,6 @@ export type CouchAuthLoading = {
 export type CouchAuthValue = {
   jwt: string;
   user: {
-    organizations: Array<string[]>;
     database: string;
     sub: string;
     roles: string[];

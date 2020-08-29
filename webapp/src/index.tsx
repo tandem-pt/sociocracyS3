@@ -3,6 +3,9 @@ import ReactDOM from 'react-dom';
 import './index.css';
 import App from './App';
 import * as serviceWorker from './serviceWorker';
+import PouchDB from 'pouchdb-browser';
+import PouchDBUpsert from 'pouchdb-upsert';
+PouchDB.plugin(PouchDBUpsert);
 
 ReactDOM.render(
   <React.StrictMode>

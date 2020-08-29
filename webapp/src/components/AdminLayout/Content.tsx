@@ -3,10 +3,7 @@ import { createStyles, withStyles, WithStyles } from '@material-ui/core/styles';
 import { NavigationTabList } from './NavigationTab.types';
 import { Route, Switch, Redirect, useRouteMatch } from 'react-router-dom';
 import { compile } from 'path-to-regexp';
-const styles = () =>
-    createStyles({
-        root: { zIndex: 1 }
-    });
+
 
 export type ContentProps = {} & WithStyles<typeof styles> & NavigationTabList;
 
@@ -26,5 +23,8 @@ function Content({ classes, tabs }: ContentProps) {
 
     );
 }
-
+const styles = () =>
+    createStyles({
+        root: { zIndex: 1 }
+    });
 export default withStyles(styles)(Content);

@@ -1,11 +1,19 @@
 import React, {useContext} from 'react';
 
-export type OrganizationContextType = {
-  organization: string;
+export type OrganizationType = {
+  name: string;
+  id: number;
+  database: string;
 };
-
+export type OrganizationContextType = {
+  organizations: OrganizationType[];
+  selectedOrganization: OrganizationType;
+  setSelectedOrganization: (x: number) => void;
+};
 const OrganizationContext = React.createContext<OrganizationContextType>({
-  organization: '',
+  organizations: [],
+  selectedOrganization: {name: '', id: -1, database: ''},
+  setSelectedOrganization: x => x,
 });
 OrganizationContext.displayName = 'OrganizationContext';
 

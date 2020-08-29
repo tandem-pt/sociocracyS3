@@ -5,7 +5,7 @@ import Typography from '@material-ui/core/Typography';
 import Skeleton from '@material-ui/lab/Skeleton';
 import Link from '@material-ui/core/Link';
 
-const styles = (theme: Theme) => ({
+const styles = (theme: Theme) => createStyles({
     list: {
         padding: 0,
         marginLeft: theme.spacing(2)
@@ -67,7 +67,6 @@ const Markdown = ({ filename, lang, classes }: MarkdownProps & WithStyles<typeof
 
     useEffect(() => {
         const fetchFile = async (language = 'en') => {
-            if (isLoading) return;
             const result = await fetch(`/markdown/${language}/${filename}.md`, {
                 credentials: "include"
             });
@@ -80,9 +79,10 @@ const Markdown = ({ filename, lang, classes }: MarkdownProps & WithStyles<typeof
                 setText(`can not load /markdown/${language}/${filename}.md`);
             }
         }
+
         setIsLoading(true);
         fetchFile(lang).then(() => setIsLoading(false));
-    }, [setText, setIsLoading]);
+    }, [setText, setIsLoading, filename, lang]);
     return isLoading ? <Skeleton variant="text" height={33} /> : <ReactMarkdown options={options(classes)} children={text} />;
 }
 

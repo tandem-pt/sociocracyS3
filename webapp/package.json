@@ -10,6 +10,11 @@
     "@material-ui/pickers": "^3.2.10",
     "@material-ui/system": "^4.9.14",
     "@material-ui/types": "^5.1.0",
+    "@types/pouchdb-upsert": "^2.2.6",
+    "pouchdb-upsert": "^2.2.0",
+    "slate": "^0.58.4",
+    "slate-react": "^0.58.4",
+    "@productboard/slate-edit-list": "^0.21.5",
     "@testing-library/jest-dom": "^4.2.4",
     "@testing-library/react": "^9.3.2",
     "@testing-library/user-event": "^7.1.2",
@@ -25,6 +30,8 @@
     "i18next-chained-backend": "^2.0.1",
     "i18next-http-backend": "^1.0.18",
     "i18next-localstorage-backend": "^3.1.1",
+    "immutable": "^4.0.0-rc.12",
+    "is-hotkey": "^0.1.6",
     "jwt-decode": "^2.2.0",
     "markdown-to-jsx": "^6.11.4",
     "moment": "^2.27.0",
@@ -37,6 +44,7 @@
     "react-pouchdb": "^2.0.1",
     "react-router-dom": "^5.2.0",
     "react-scripts": "3.4.1",
+    "slate-history": "^0.58.4",
     "typescript": "~3.7.2"
   },
   "scripts": {

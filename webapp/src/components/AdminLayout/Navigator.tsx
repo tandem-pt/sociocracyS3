@@ -9,19 +9,14 @@ import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
 import HomeIcon from '@material-ui/icons/Home';
 import ExitToAppIcon from '@material-ui/icons/ExitToApp';
-import PeopleIcon from '@material-ui/icons/People';
-import DnsRoundedIcon from '@material-ui/icons/DnsRounded';
-import PermMediaOutlinedIcon from '@material-ui/icons/PhotoSizeSelectActual';
-import PublicIcon from '@material-ui/icons/Public';
-import SettingsEthernetIcon from '@material-ui/icons/SettingsEthernet';
-import SettingsInputComponentIcon from '@material-ui/icons/SettingsInputComponent';
 import TimerIcon from '@material-ui/icons/Timer';
 import SettingsIcon from '@material-ui/icons/Settings';
 import PhonelinkSetupIcon from '@material-ui/icons/PhonelinkSetup';
 import { Omit } from '@material-ui/types';
-import { useOrganization, useCouchAuth } from '../../contexts';
+import { useOrganization } from '../../contexts';
 import { useHistory } from 'react-router-dom';
 import Skeleton from '@material-ui/lab/Skeleton/Skeleton';
+import { withTranslation, WithTranslation } from 'react-i18next';
 
 export type ActionItemType = {
     id: string,
@@ -37,27 +32,23 @@ export type CategoryType = {
 
 const categories: Array<CategoryType> = [
     {
-        id: 'Develop',
+        id: 'organization',
         children: [
-            { id: 'Authentication', icon: <PeopleIcon />, active: true },
-            { id: 'Database', icon: <DnsRoundedIcon /> },
-            { id: 'Storage', icon: <PermMediaOutlinedIcon /> },
-            { id: 'Hosting', icon: <PublicIcon /> },
-            { id: 'Functions', icon: <SettingsEthernetIcon /> },
-            { id: 'ML Kit', icon: <SettingsInputComponentIcon /> },
+            { id: 'organization', icon: <SettingsIcon />, active: true },
+            { id: 'map', icon: <SettingsIcon /> },
         ],
     },
     {
-        id: 'Quality',
+        id: 'shortCuts',
         children: [
-            { id: 'Analytics', icon: <SettingsIcon /> },
-            { id: 'Performance', icon: <TimerIcon /> },
-            { id: 'Test Lab', icon: <PhonelinkSetupIcon /> },
+            { id: 'Analytics Role', icon: <SettingsIcon /> },
+            { id: 'Performance Role', icon: <TimerIcon /> },
+            { id: 'Test Lab Role', icon: <PhonelinkSetupIcon /> },
         ],
     },
     {
-        id: 'hello', children: [
-            { id: 'Logout', icon: <ExitToAppIcon />, onClick: () => { window.location.href = "/logout" } },
+        id: 'misc', children: [
+            { id: 'logout', icon: <ExitToAppIcon />, onClick: () => { window.location.href = "/logout" } },
         ]
     },
 ];
@@ -104,24 +95,22 @@ const styles = (theme: Theme) =>
         },
     });
 
-export interface NavigatorProps extends Omit<DrawerProps, 'classes'>, WithStyles<typeof styles> { }
+export type NavigatorProps = Omit<DrawerProps, 'classes'> & WithStyles<typeof styles> & WithTranslation;
 
-const Navigator = ({ classes, ...other }: NavigatorProps) => {
+const Navigator = ({ classes, t, ...other }: NavigatorProps) => {
     const history = useHistory();
-    const { organization } = useOrganization();
-    const couchAuthState = useCouchAuth();
-    const [organizationID, organizationName] = couchAuthState.couchLoading === true ? [] : couchAuthState.user.organizations.filter(([orgID]) => orgID === organization)[0];
+    const { selectedOrganization } = useOrganization();
     return (
         <Drawer variant="permanent" {...other}>
             <List disablePadding>
                 <ListItem className={clsx(classes.firebase, classes.item, classes.itemCategory)}>
                     Sociocracy S3
                 </ListItem>
-                {organizationName ?
+                {selectedOrganization.name ?
                     <ListItem
                         className={clsx(classes.item, classes.itemCategory)}
                         button
-                        onClick={() => history.push(`/organizations/${organizationID}/about`)}>
+                        onClick={() => history.push(`/${selectedOrganization.id}/about`)}>
                         <ListItemIcon className={classes.itemIcon}>
                             <HomeIcon />
                         </ListItemIcon>
@@ -130,10 +119,48 @@ const Navigator = ({ classes, ...other }: NavigatorProps) => {
                                 primary: classes.itemPrimary,
                             }}
                         >
-                            {organizationName}
+                            {selectedOrganization.name}
                         </ListItemText>
                     </ListItem> : <Skeleton variant="rect" height={61} />}
-                {categories.map(({ id, children }) => (
+
+                <ListItem className={classes.categoryHeader} >
+                    <ListItemText
+                        classes={{
+                            primary: classes.categoryHeaderPrimary,
+                        }}
+                    >
+                        {t(`navbar.yourSpace`)}
+                    </ListItemText>
+                </ListItem>
+                <ListItem
+                    button
+                    className={classes.item}
+                >
+                    <ListItemIcon className={classes.itemIcon}>-</ListItemIcon>
+                    <ListItemText
+                        classes={{
+                            primary: classes.itemPrimary,
+                        }}
+                    >
+                        {t(`navbar.inbox`)}
+                    </ListItemText>
+                </ListItem>
+                <ListItem
+                    button
+                    className={classes.item}
+                >
+                    <ListItemIcon className={classes.itemIcon}>-</ListItemIcon>
+                    <ListItemText
+                        classes={{
+                            primary: classes.itemPrimary,
+                        }}
+                    >
+                        {t(`navbar.proposals`)}
+                    </ListItemText>
+                </ListItem>
+
+
+                {categories.map(({ id, children }, index) => (
                     <React.Fragment key={id}>
                         <ListItem className={classes.categoryHeader} >
                             <ListItemText
@@ -141,8 +168,9 @@ const Navigator = ({ classes, ...other }: NavigatorProps) => {
                                     primary: classes.categoryHeaderPrimary,
                                 }}
                             >
-                                {id}
+                                {t(`navbar.${id}`)}
                             </ListItemText>
+
                         </ListItem>
                         {children.map(({ id: childId, icon, active, onClick = () => { } }) => (
                             <ListItem
@@ -157,16 +185,16 @@ const Navigator = ({ classes, ...other }: NavigatorProps) => {
                                         primary: classes.itemPrimary,
                                     }}
                                 >
-                                    {childId}
+                                    {t(`${id}.${childId}`)}
                                 </ListItemText>
                             </ListItem>
                         ))}
-                        <Divider className={classes.divider} />
+                        {index < categories.length - 2 && <Divider className={classes.divider} />}
                     </React.Fragment>
                 ))}
             </List>
-        </Drawer>
+        </Drawer >
     );
 }
 
-export default withStyles(styles)(Navigator);
+export default withTranslation('translation')(withStyles(styles)(Navigator));

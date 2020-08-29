@@ -69,15 +69,15 @@ const styles = (theme: Theme) => createStyles({
         flex: 1,
         display: 'flex',
         flexDirection: 'column',
+        background: theme.palette.background.paper,
+
     },
     main: {
         flex: 1,
-        padding: theme.spacing(6, 4),
-        background: '#eaeff1',
+        padding: theme.spacing(4, 2),
     },
     footer: {
-        padding: theme.spacing(2),
-        background: '#eaeff1',
+        padding: theme.spacing(1),
     },
 });
 

@@ -2,6 +2,7 @@ export {default as PouchDB} from './PouchDB';
 export {default as PouchDBSync, usePouchDBSync} from './PouchDBSync';
 export {
   default as Organization,
+  OrganizationSync,
   useOrganizationDB,
   useOrganizationGet,
   useOrganizationFind,

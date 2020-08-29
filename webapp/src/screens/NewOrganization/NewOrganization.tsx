@@ -1,6 +1,6 @@
 import React, { useState, useCallback } from 'react';
 
-import { PlainLayout, PrimaryButton } from '../../components';
+import { PlainLayout } from '../../components';
 import Card from '@material-ui/core/Card';
 import CardHeader from '@material-ui/core/CardHeader';
 import CardContent from '@material-ui/core/CardContent';
@@ -17,7 +17,7 @@ import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListSubheader from '@material-ui/core/ListSubheader';
 import { useAuth0 } from "@auth0/auth0-react";
-import { useCouchAuth } from '../../contexts';
+import { useCouchAuth, useOrganization } from '../../contexts';
 import { useHistory } from 'react-router-dom';
 import Skeleton from '@material-ui/lab/Skeleton/Skeleton';
 import { withTranslation, WithTranslation } from 'react-i18next';
@@ -30,6 +30,7 @@ const NewOrganization = ({ classes, t }: NewOrganizationProps) => {
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const { getIdTokenClaims } = useAuth0();
     const couchAuthState = useCouchAuth();
+    const { organizations } = useOrganization();
     const onSubmit = useCallback(async (evt) => {
         if (evt.preventDefault) evt.preventDefault();
         setIsLoading(true);
@@ -49,7 +50,7 @@ const NewOrganization = ({ classes, t }: NewOrganizationProps) => {
                 if (couchAuthState.couchLoading === false) {
                     await couchAuthState.getCouchToken()
                 }
-                history.push(`/organizations/${organizationID}/members`);
+                history.push(`/${organizationID}/members`);
                 return;
             }
             throw new Error('Error while fetching ' + response.status);
@@ -57,9 +58,8 @@ const NewOrganization = ({ classes, t }: NewOrganizationProps) => {
             console.error(err)
         }
         setIsLoading(false);
-
         return false;
-    }, [organizationName, history, getIdTokenClaims])
+    }, [organizationName, history, getIdTokenClaims, couchAuthState])
 
     return <PlainLayout>
         <form id="NewOrganization" aria-labelledby="NewOrganizationTips" aria-busy={isLoading} onSubmit={onSubmit}>
@@ -92,13 +92,12 @@ const NewOrganization = ({ classes, t }: NewOrganizationProps) => {
                 </CardActionArea>
             </Card>
         </form>
-        {couchAuthState.couchLoading === false
-            && couchAuthState.user.organizations.length > 0
+        {organizations && organizations.length > 0
             && <List className={classes.organizations} dense component="nav">
                 <ListSubheader>
                     {t('new.organizations')}
                 </ListSubheader>
-                {couchAuthState.user.organizations.map(([organizationID, organizationName]) => <ListItem button key={organizationID} onClick={() => history.push(`/organizations/${organizationID}`)}>{organizationName}</ListItem>)}
+                {organizations.map(({ id, name }) => <ListItem button key={id} onClick={() => history.push(`/${id}`)}>{name}</ListItem>)}
             </List>}
         {couchAuthState.couchLoading === true && <Skeleton className={classes.organizations} style={{ opacity: 0.3 }} animation="pulse" variant="rect" width={320} height={120} />}
     </PlainLayout >

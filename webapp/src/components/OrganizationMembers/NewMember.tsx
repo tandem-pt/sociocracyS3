@@ -25,10 +25,15 @@ const NewMember = ({ classes, t, id, onClose, ...dialogProps }: NewMemberType) =
 
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [newEmails, setNewEmails] = useState<string[]>([]);
-    const { organization } = useOrganization();
+    const { selectedOrganization } = useOrganization();
+    let organizationID: number = -1;
+    if (selectedOrganization) {
+        organizationID = selectedOrganization.id;
+    }
     const { getIdTokenClaims } = useAuth0();
     const onSubmit = useCallback((evt) => {
         if (evt.preventDefault) evt.preventDefault();
+
         const sendInvite = async () => {
             const { __raw: idToken } = await getIdTokenClaims();
             const response = await fetch(process.env.REACT_APP_API_URL + "/api/v1/members/bulks", {
@@ -37,7 +42,7 @@ const NewMember = ({ classes, t, id, onClose, ...dialogProps }: NewMemberType) =
                     bulks: newEmails.map((email) => ({
                         command: 'create',
                         email,
-                        organization_id: organization
+                        organization_id: organizationID
                     }))
                 }),
                 headers: {
@@ -47,16 +52,15 @@ const NewMember = ({ classes, t, id, onClose, ...dialogProps }: NewMemberType) =
                 credentials: "include"
             });
             if (response.ok) {
-                const { docs } = await response.json();
                 setNewEmails([]);
                 if (onClose)
                     onClose({}, "backdropClick");
             }
         };
-        if (newEmails.length === 0) return
+        if (newEmails.length === 0 || organizationID < 0) return
         setIsLoading(true);
         sendInvite().then(() => setIsLoading(false))
-    }, [newEmails, getIdTokenClaims]);
+    }, [newEmails, getIdTokenClaims, onClose, organizationID]);
 
     return <Dialog className={classes.formCard} aria-labelledby={id} {...dialogProps} onClose={onClose}>
         <form onSubmit={onSubmit}>

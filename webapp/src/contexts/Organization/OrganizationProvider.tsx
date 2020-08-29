@@ -1,30 +1,49 @@
-import React, { useContext } from 'react';
-import { PouchDB, useDB, useGet, useFind } from "react-pouchdb/browser";
-import PouchDBSync from '../PouchDBSync'
-import OrganizationContext, { OrganizationContextType } from './OrganizationContext'
-export type OrganizationProps = React.PropsWithChildren<OrganizationContextType>
+import React, { useContext, useEffect, useState, useCallback, useMemo } from 'react';
+import OrganizationContext, { OrganizationContextType, OrganizationType } from './OrganizationContext'
+import { useAuth0 } from '@auth0/auth0-react'
+export type OrganizationProps = React.PropsWithChildren<{
+    fallback: JSX.Element
+}>
 
 export const useOrganization = () => useContext<OrganizationContextType>(OrganizationContext)
-export const useOrganizationDB = () => {
-    const { organization } = useOrganization();
-    return useDB(organization);
-}
-export const useOrganizationGet = (getParams: any) => {
-    const { organization } = useOrganization();
-    return useGet(organization, getParams);
-}
-export const useOrganizationFind = (findParams: any) => {
-    const { organization } = useOrganization();
-    return useFind(organization, findParams);
-}
 
-const Organization = ({ organization, children }: OrganizationProps) => {
-    return <OrganizationContext.Provider value={{ organization }}>
-        <PouchDB name={organization} >
-            <PouchDBSync database={organization}>
-                {children}
-            </PouchDBSync>
-        </PouchDB>
+const Organization = ({ fallback, children }: OrganizationProps) => {
+    const [organizations, setOrganizations] = useState<OrganizationType[]>();
+    const [selectedOrganizationIndex, setSelectedOrganization] = useState<number>(-1);
+    const { getIdTokenClaims } = useAuth0();
+    const selectedOrganization = useMemo(
+        () => {
+            const match = organizations?.filter(({ id }) => id === selectedOrganizationIndex)
+            if (match && match.length > 0) return match[0];
+            return { id: -1, name: '', database: '' }
+        },
+        [organizations, selectedOrganizationIndex]);
+    const fetchOrganization = useCallback(async () => {
+        const { __raw: idToken } = await getIdTokenClaims();
+        const fetchData = await fetch(process.env.REACT_APP_API_URL + "/api/v1/organizations", {
+            method: 'GET',
+            headers: {
+                'Authorization': 'Bearer ' + idToken,
+            },
+            credentials: "include"
+        });
+        if (fetchData.ok) {
+            const response = (await fetchData.json()) as { organizations: OrganizationType[] };
+            const { organizations } = response;
+            console.log('setOrganizations', { organizations, fetchData })
+            setOrganizations(organizations);
+        } else {
+            setOrganizations([]);
+        }
+    }, [getIdTokenClaims, setOrganizations]);
+
+    useEffect(() => {
+        fetchOrganization();
+    }, [fetchOrganization])
+
+    if (typeof organizations === 'undefined') return fallback;
+    return <OrganizationContext.Provider value={{ organizations, setSelectedOrganization, selectedOrganization }}>
+        {children}
     </OrganizationContext.Provider>
 }
 

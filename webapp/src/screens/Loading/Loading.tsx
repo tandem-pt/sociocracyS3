@@ -127,7 +127,7 @@ const styles = (theme: Theme) => createStyles({
             left: 0,
             width: '91%'
         },
-        top: (3 * 48) + 'px',
+        top: (2 * 48 + 24) + 'px',
         display: 'block',
         marginTop: theme.spacing(6),
         marginLeft: theme.spacing(4),

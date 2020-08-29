@@ -5,6 +5,8 @@ export type AdminLayoutType = {
   tabs: NavigationTab[];
   title: string;
   setTitle: (title: string) => void;
+  navigationTitle: string;
+  setNavigationTitle: (navigationTitle: string) => void;
 };
 
 export type NavigationTab = {

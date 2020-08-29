@@ -12,6 +12,7 @@ import { initReactI18next } from "react-i18next";
 import Backend from 'i18next-chained-backend';
 import LocalStorageBackend from 'i18next-localstorage-backend';
 import HttpApi from 'i18next-http-backend';
+import CssBaseline from '@material-ui/core/CssBaseline';
 
 const i18nHTTP = {
   loadPath: process.env.REACT_APP_API_URL + '/locales/{{lng}}/{{ns}}.json',
@@ -27,7 +28,7 @@ i18n
   .init({
     fallbackLng: 'en',
     debug: true,
-    ns: ['organizations', 'welcome', 'circles'],
+    ns: ['translation', 'organizations', 'welcome', 'circles'],
     interpolation: {
       escapeValue: false,
     },
@@ -50,6 +51,7 @@ i18n
 function App() {
   return (
     <ThemeProvider theme={theme}>
+      <CssBaseline />
       <Auth0Provider domain={"" + process.env.REACT_APP_DOMAIN_ID}
         clientId={"" + process.env.REACT_APP_CLIENT_ID}
         redirectUri={window.location.origin}
@@ -62,6 +64,7 @@ function App() {
           window.location.reload();
         }}
       >
+
         <CouchAuth>
           <AdminLayout>
             <Router />

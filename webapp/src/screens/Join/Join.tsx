@@ -1,13 +1,14 @@
-import React, { useEffect, useState } from 'react';
-import { Theme, withStyles, WithStyles, createStyles, CardHeader, Card, CardContent, Typography, Input, CardActionArea, Button } from '@material-ui/core';
+import React, { useEffect, useState, useCallback } from 'react';
+import { Theme, withStyles, WithStyles, createStyles, CardHeader, Card, CardContent, Typography, CardActionArea, Avatar, Button, MenuItem, Menu } from '@material-ui/core';
 import { withTranslation, WithTranslation } from 'react-i18next';
 import { Loading } from '../../screens';
 import { PlainLayout, Markdown, PrimaryButton } from '../../components';
-import { useLocation, useHistory, Redirect } from 'react-router-dom';
+import { useLocation, Redirect } from 'react-router-dom';
 import { searchParams } from './searchParams';
 import Skeleton from '@material-ui/lab/Skeleton';
 import { useAuth0 } from '@auth0/auth0-react';
 import NotFound from './NotFound';
+import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
 import { useCouchAuth } from '../../contexts';
 export type JoinProps = WithStyles<typeof styles> & WithTranslation;
 export type JoinParams = {
@@ -23,14 +24,27 @@ export type InvitationModel = {
 }
 
 const Join = ({ classes, t, i18n }: JoinProps) => {
-    const params = searchParams(useLocation()) as JoinParams;
-    const { getIdTokenClaims } = useAuth0();
+    const [anchorEl, setAnchorEl] = useState(null);
+    const { getIdTokenClaims, user, logout } = useAuth0();
+
+    const location = useLocation();
+    const params = searchParams(location) as JoinParams;
     const couchAuthState = useCouchAuth();
-    const [token] = params.token;
-    const [invitation_id] = params.invitation_id;
     const [organization, setOrganization] = useState<InvitationModel | null>(null);
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const [isNotFound, setIsNotFound] = useState<boolean>(false);
+    const [token] = params.token || '';
+    const [invitation_id] = params.invitation_id || '';
+
+    const handleClick = useCallback((event: any) => {
+        setAnchorEl(event.currentTarget);
+    }, [setAnchorEl]);
+
+    const handleClose = useCallback(() => {
+        setAnchorEl(null);
+        logout({ returnTo: `${window.location.origin}/participate?invitation_id=${invitation_id}&token=${token}&changeAccount=true` });
+    }, [setAnchorEl, window.location, invitation_id, token]);
+
     useEffect(() => {
         const getInfos = async () => {
             const response = await fetch(process.env.REACT_APP_API_URL + "/api/v1/members/" + invitation_id + '?token=' + token, {
@@ -44,9 +58,9 @@ const Join = ({ classes, t, i18n }: JoinProps) => {
             }
         }
         getInfos().then(() => setIsLoading(false));
-    }, [setIsLoading, setOrganization]);
+    }, [setIsLoading, setOrganization, invitation_id, token]);
     if (organization && organization.accepted_at && organization.organization_id) {
-        return <Redirect to={`/organizations/${organization.organization_id}`} />
+        return <Redirect to={`/${organization.organization_id}`} />
     }
     if (isLoading) {
         return <Loading />;
@@ -60,6 +74,20 @@ const Join = ({ classes, t, i18n }: JoinProps) => {
                 title={isLoading || organization === null
                     ? <Skeleton variant="text" />
                     : t('join.title', { name: organization.organization_name })}
+                action={<><Button aria-controls="simple-menu" aria-haspopup="true" onClick={handleClick} endIcon={<ArrowDropDownIcon />}>
+                    <Avatar src={user.picture} />
+                </Button>
+                    <Menu
+                        id="simple-menu"
+                        anchorEl={anchorEl}
+                        keepMounted
+                        open={Boolean(anchorEl)}
+                        onClose={handleClose}
+                    >
+                        <MenuItem onClick={handleClose}>Switch Account</MenuItem>
+                    </Menu></>
+                }
+
             />
             <CardContent className={classes.content}>
                 <Markdown filename="join-organization" lang={i18n.language} />
@@ -88,7 +116,7 @@ const Join = ({ classes, t, i18n }: JoinProps) => {
                         setOrganization(infos);
                     }
                 }} contained>
-                <Typography variant="body1">{t('join.participate')}</Typography>
+                <Typography variant="body1">{t('join.participate', { user })}</Typography>
             </CardActionArea>
 
         </Card>

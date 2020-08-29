@@ -1,40 +1,43 @@
-import React, { lazy, Suspense, useEffect } from 'react';
+import React, { lazy, Suspense, useEffect, useCallback } from 'react';
 import AdminLayout from '../../components/AdminLayout'
-import CircularProgress from '@material-ui/core/CircularProgress';
+import Skeleton from '@material-ui/lab/Skeleton';
 import { useParams } from 'react-router-dom';
-import { Organization as OrganizationProvider, useAdminLayout, useCouchAuth } from '../../contexts';
+import { OrganizationSync, useAdminLayout, useCouchAuth } from '../../contexts';
 import { withTranslation, WithTranslation } from 'react-i18next';
 type OrganizationType = WithTranslation;
 
-const Learn = lazy(() => import('../../components/Learn'));
+const About = lazy(() => import('../../components/About'));
 const OrganizationMembers = lazy(() => import('../../components/OrganizationMembers'));
-const fallback = <CircularProgress size={50} />;
+const Fallback = () => <><Skeleton variant="text" /><Skeleton variant="text" /><Skeleton variant="text" /></>;
 const Organization = ({ t }: OrganizationType) => {
     const { organization_id: organizationID } = useParams();
     const couchAuthState = useCouchAuth();
     const { setTabs, setTitle } = useAdminLayout();
+    const tabElement = useCallback((title: string, path: string, Component: React.LazyExoticComponent<any>) => {
+        return {
+            title,
+            path,
+            component: couchAuthState.couchLoading ? Fallback : () => <Suspense fallback={<Fallback />}><Component document={`org:tab:${path}`} /></Suspense>
+        }
+    }, [couchAuthState.couchLoading]);
+
     useEffect(() => {
-        if (couchAuthState.couchLoading === true) return;
         setTabs([
-            {
-                title: t('tabs.about'),
-                path: "about",
-                component: () => (<div>About</div>),
-            },
-            {
-                title: t('tabs.learn'),
-                path: "learn",
-                component: () => <Suspense fallback={fallback}><Learn /></Suspense>,
-            },
-            {
-                title: t('tabs.members'),
-                path: "members",
-                component: () => <Suspense fallback={fallback}><OrganizationMembers /></Suspense>,
-            },
+            tabElement(
+                t('tabs.about'),
+                "about",
+                About
+            ),
+            tabElement(
+                t('tabs.members'),
+                "members",
+                OrganizationMembers
+            )
+
         ])
         setTitle(t('title'))
-    }, [setTabs, setTitle, couchAuthState.couchLoading, organizationID]);
-    return <OrganizationProvider organization={organizationID}><AdminLayout /></OrganizationProvider>
+    }, [setTabs, setTitle, couchAuthState.couchLoading, organizationID, t, tabElement]);
+    return <OrganizationSync id={parseInt(organizationID)}><AdminLayout /></OrganizationSync>
 }
 
 export default withTranslation('organizations')(Organization);

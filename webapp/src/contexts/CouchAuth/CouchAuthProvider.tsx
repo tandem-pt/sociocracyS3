@@ -12,17 +12,6 @@ const CouchAuth = ({ children }: CouchAuthProps) => {
     const [retry, setRetry] = useState<number>(0);
     const { isAuthenticated, isLoading: isAuthLoading, getIdTokenClaims, logout } = useAuth0();
 
-    const parseUserOrganizations = (user: any) => {
-        const roles = user["_couchdb.roles"] as Array<string>;
-        const dbNames = user.dbNames as Array<string>;
-        console.log({ user })
-        return roles.filter((role: string) => role !== `admin.${user['https://sociocracy30.io/userDB']}`).map((couchRole: string, index) => {
-            const [, database] = couchRole.split('.');
-
-            return ["" + database, "" + dbNames[index]];
-        }, {});
-    }
-
     const getCouchToken = useCallback(async () => {
         if (retry > 5) {
             console.error('Denied to connect to couch after 5 retries, logout');
@@ -52,7 +41,6 @@ const CouchAuth = ({ children }: CouchAuthProps) => {
             sub: "" + decodedJWT.sub,
             roles: decodedJWT["_couchdb.roles"] as Array<string>,
             database: "" + decodedJWT['https://sociocracy30.io/userDB'],
-            organizations: "_couchdb.roles" in decodedJWT ? parseUserOrganizations(decodedJWT) : [],
             isAdmin: (database: string) => user.roles.includes(`admin.${database}`)
         }
         const state = { jwt: `${jwt}`, user, couchLoading: false };
@@ -64,10 +52,10 @@ const CouchAuth = ({ children }: CouchAuthProps) => {
 
     useEffect(() => {
         if (!isAuthenticated || isAuthLoading) return;
-        if (!isLoading) {
+        if (!isLoading && couchAuthState.couchLoading === true) {
             getCouchToken();
         }
-    }, [couchAuthState.couchLoading, isAuthenticated, isAuthLoading, getCouchToken]);
+    }, [isAuthenticated, isAuthLoading, getCouchToken, isLoading, couchAuthState.couchLoading]);
 
     return <CouchAuthContext.Provider value={
         couchAuthState.couchLoading === true

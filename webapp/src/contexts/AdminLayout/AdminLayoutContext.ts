@@ -4,8 +4,10 @@ import {AdminLayoutType} from './types';
 const AdminLayoutContext = React.createContext<AdminLayoutType>({
   tabs: [],
   title: 'Sociocracy S3',
+  navigationTitle: '',
   setTabs: x => undefined,
   setTitle: x => undefined,
+  setNavigationTitle: x => undefined,
 });
 
 AdminLayoutContext.displayName = 'AdminLayoutContext';

@@ -15,6 +15,9 @@ import Typography from '@material-ui/core/Typography';
 import { createStyles, Theme, withStyles, WithStyles } from '@material-ui/core/styles';
 import TabsHeader from './TabsHeader';
 import { NavigationTabList } from './NavigationTab.types'
+import { useAdminLayout } from '../../contexts';
+import Fade from '@material-ui/core/Fade';
+
 const lightColor = 'rgba(255, 255, 255, 0.7)';
 
 const styles = (theme: Theme) =>
@@ -42,6 +45,7 @@ const styles = (theme: Theme) =>
 
 export type HeaderProps = { onDrawerToggle: () => void, title: string } & NavigationTabList & WithStyles<typeof styles>
 function Header({ classes, onDrawerToggle, tabs, title }: HeaderProps) {
+    const { navigationTitle } = useAdminLayout();
     return (
         <React.Fragment>
             <AppBar color="primary" position="sticky" elevation={0}>
@@ -59,7 +63,13 @@ function Header({ classes, onDrawerToggle, tabs, title }: HeaderProps) {
                                 </IconButton>
                             </Grid>
                         </Hidden>
-                        <Grid item xs />
+                        <Grid item xs>
+                            <Fade in={!!navigationTitle && navigationTitle.length > 0}>
+                                <Typography variant="overline">
+                                    {navigationTitle}
+                                </Typography>
+                            </Fade>
+                        </Grid>
                         <Grid item>
                             <Link className={classes.link} href="#" variant="body2">
                                 Go to docs

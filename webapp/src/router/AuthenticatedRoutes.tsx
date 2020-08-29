@@ -4,40 +4,44 @@ import {
     Route,
     Redirect,
 } from "react-router-dom";
-import { LogoutRedirector, Organization, NewOrganization, Join } from '../screens';
-import { PouchDB, PouchDBSync, useCouchAuth } from '../contexts'
+import { LogoutRedirector, Organization, NewOrganization, Join, Loading } from '../screens';
+import { PouchDB, PouchDBSync, useCouchAuth, Organization as OrganizationProvider, useOrganization } from '../contexts'
 
 const AuthenticatedRoutesSwitch = () => {
     const couchAuthState = useCouchAuth();
-
-    return <PouchDB database={"me"}>
-        <Switch>
-            <Route path="/logout" component={LogoutRedirector} exact />
-            <Route path="/participate" component={Join} exact />
-            <Route path="/getting-started" render={(props) => <NewOrganization />} exact />
-            {
-                couchAuthState.couchLoading === false && (couchAuthState.user.organizations.length === 0
-                    ? <Redirect from="/" to="/getting-started" exact />
-                    : <Redirect from="/" to={`/organizations/${couchAuthState.user.organizations[0][0]}/about`} exact />
-                )
-            }
+    const { organizations } = useOrganization();
+    return <PouchDB database="me">
+        <PouchDB database="local">
             <Switch>
-                <Route path="/organizations/new" exact>
-                    <NewOrganization />
-                </Route>
-                <Route path="/organizations/:organization_id/">
-                    <Organization />
-                </Route>
+                <Route path="/logout" component={LogoutRedirector} exact />
+                <Route path="/participate" component={Join} exact />
+                <Route path="/getting-started" render={() => <NewOrganization />} exact />
+                {
+                    couchAuthState.couchLoading === false && (organizations.length === 0
+                        ? <Redirect from="/" to="/getting-started" exact />
+                        : <Redirect from="/" to={`/${organizations[0].id}/about`} exact />
+                    )
+                }
+                <Switch>
+                    <Route path="/new" exact>
+                        <NewOrganization />
+                    </Route>
+                    <Route path="/:organization_id/">
+                        <Organization />
+                    </Route>
+                </Switch>
             </Switch>
-        </Switch>
+        </PouchDB>
     </PouchDB>
 }
 /**
  * Routes when user is authenticated
  */
 const AuthenticatedRoutes = () => {
-    return <PouchDBSync database="me">
-        <AuthenticatedRoutesSwitch />
-    </PouchDBSync >
+    return <OrganizationProvider fallback={<Loading />}>
+        <PouchDBSync database="me">
+            <AuthenticatedRoutesSwitch />
+        </PouchDBSync>
+    </OrganizationProvider>
 }
 export default AuthenticatedRoutes;

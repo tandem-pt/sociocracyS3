@@ -30,7 +30,9 @@ const TabsHeader = ({ classes, tabs }: TabsHeaderProps) => {
             position="static"
             elevation={0}
         >
-            <Tabs value={pathname || tabs[0]?.path} textColor="inherit">
+            <Tabs value={pathname || tabs[0]?.path} textColor="inherit" variant="scrollable"
+                scrollButtons="auto"
+            >
                 {tabs.map(({ title, ariaLabel, path }) => <Tab textColor="inherit" aria-label={ariaLabel} label={title} value={path} component={Link} to={path} key={path} />)}
             </Tabs>
         </AppBar>

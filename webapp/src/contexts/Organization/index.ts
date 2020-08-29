@@ -1,7 +1,7 @@
+export {default, useOrganization} from './OrganizationProvider';
 export {
-  default,
+  default as OrganizationSync,
   useOrganizationDB,
   useOrganizationGet,
   useOrganizationFind,
-  useOrganization,
-} from './OrganizationProvider';
+} from './OrganizationSync';

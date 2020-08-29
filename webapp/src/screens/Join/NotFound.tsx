@@ -1,5 +1,5 @@
 import React from 'react';
-import { Theme, withStyles, WithStyles, createStyles, CardHeader, Card, CardContent, Typography, Input, CardActionArea, Button } from '@material-ui/core';
+import { Theme, withStyles, WithStyles, createStyles, CardHeader, Card, CardContent, Typography, CardActionArea } from '@material-ui/core';
 import { withTranslation, WithTranslation } from 'react-i18next';
 import { PlainLayout, SecondaryButton } from '../../components';
 export type NotFoundProps = WithStyles<typeof styles> & WithTranslation;
