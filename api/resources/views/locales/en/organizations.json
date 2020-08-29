@@ -2,8 +2,12 @@
     "title": "Your organization",
     "tabs": {
         "about": "About",
-        "learn": "Learn Sociocracy 3.0",
         "members": "Users and permissions"
+    },
+    "about": {
+        "placeholder": "Who are we",
+        "submitBtn": "Save",
+        "cancelBtn": "Cancel"
     },
     "new": {
         "title": "Create circle of collaboration ",
@@ -18,6 +22,7 @@
     },
     "members": {
         "list": {
+            "add_new": "Invite new member(s)",
             "title": "Organization members",
             "accepted_at": "Joined {{when}}",
             "accepted_chip": "Accepted",

@@ -5,7 +5,7 @@
     "join": {
         "title": "Join {{name}} organization !",
         "signIn" : "Login or Register",
-        "participate": "Agree and participate",
+        "participate": "Agree and participate as {{user.email}}",
         "404": {
             "title": "Expired or invalid link", 
             "content": "This link expires once you accept an invitation.",

@@ -14,10 +14,10 @@ class UserOrganization extends Migration
     public function up()
     {
         Schema::create('user_organizations', function (Blueprint $table) {
-            $table->increments('id');
+            $table->id();
             $table->string('user_id')->nullable();
-            $table->string('organization');
             $table->timestamps();
+            $table->foreignId('organization_id')->constrained()->onDelete('cascade');
         });
     }
 

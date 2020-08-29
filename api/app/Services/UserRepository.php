@@ -3,10 +3,10 @@ namespace App\Services;
 
 use \Symfony\Component\HttpKernel\Exception\HttpException;
 use App\UserOrganization;
-use App\OrganizationMeta;
+use App\Organization;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
-
+use Log;
 use Illuminate\Validation\ValidationException;
 use PHPOnCouch\Couch;
 use PHPOnCouch\CouchClient;
@@ -32,44 +32,58 @@ class UserRepository
     {
         return $this->user->getAuthIdentifier();
     }
-    
-    public function joinOrganization($organization, $sub=null)
+
+    public function joinOrganizationID($organizationID)
     {
+        DB::table('user_organizations')->insertOrIgnore(
+            [
+                'organization_id' => $organizationID,
+                'user_id' => $this->user->getAuthIdentifier(),
+                'created_at' => now(),
+                'updated_at' => now(),
+                'accepted_at' => now(),
+            ]
+        );
+    }
+    public function joinOrganization($organizationName)
+    {
+        $organizationDatabase = $this->generateDBName($organizationName, 'org');
         DB::beginTransaction();
         try {
-            DB::table('user_organizations')->insertOrIgnore(
+            DB::table('organizations')->insertOrIgnore(
                 [
-                    'user_id' => $this->user->getAuthIdentifier(),
-                    'email' => $this->user->getEmail(),
-                    'organization' => $organization,
+                    'database' => $organizationDatabase,
+                    'name' => $organizationName,
                     'created_at' => now(),
-                    'updated_at' => now(),
-                    'accepted_at' => now(),
+                    'updated_at' => now()
                 ]
             );
-            if ($isCreating) {
-                DB::table('organization_metas')->insert(
-                    [
-                        'creator_id' => $this->user->getAuthIdentifier(),
-                        'organization' => $organization,
-                        'name' => $organizationName,
-                        'created_at' => now(),
-                        'updated_at' => now()
-                    ]
-                );
-            }
+            $organization = Organization::select('id')->where('database', $organizationDatabase)->firstOrFail();
+            $this->joinOrganizationID($organization->id);
         } catch (ValidationException $e) {
+            Log::error($e->getMessage());
             // Rollback and then redirect
             // back to form with errors
             DB::rollback();
             throw $e;
         } catch (\Exception $e) {
+            Log::error($e->getMessage());
+            Log::error('ROLLBACK');
             DB::rollback();
             throw new HttpException(400, 'Bad data. ' . $e->getMessage());
         }
         DB::commit();
 
-        return $organization;
+        return UserOrganization::where('user_organizations.user_id', Auth::user()->getAuthIdentifier())
+        ->whereNotNull('accepted_at')
+        ->join('organizations', 'organizations.id', 'user_organizations.organization_id')
+        ->where('organizations.database', $organizationDatabase)
+            ->select(
+                'organizations.id as id',
+                'user_organizations.accepted_at as accepted_at',
+                'organizations.database as database',
+                'organizations.name as name'
+            )->firstOrFail();
     }
 
     public function generateDBName($name, $prefix='org')
@@ -83,44 +97,41 @@ class UserRepository
      * @param  string $organization
      * @return string the database added
      */
-    public function createOrganization($organization)
+    public function createOrganization($organizationName)
     {
-        $sub = $this->user->getAuthIdentifier();
+        $organization = $this->generateDBName($organizationName, 'org');
         $client = $this->dbClient($organization);
         if (!$client->databaseExists()) {
             $client->createDatabase();
             $admin = $this->dbAdmin($client);
             $admin->addDatabaseMemberRole("admin.$organization");
         }
-
-        return $this->joinOrganization($organization);
+        return $this->joinOrganization($organizationName);
     }
 
-    public static function invite(string $email, string $organization)
+    public static function invite(string $email, string $organizationID)
     {
-        if (UserOrganization::where('email', $email)->where('organization', $organization)->exists()) {
-            // Email already invited
-            return UserOrganization::where('email', $email)->where('organization', $organization)->first();
+        $match = UserOrganization::where('email', $email)
+        ->where('organization_id', $organizationID);
+        if ($match->exists()) {
+            return $match->first();
         }
         $success = DB::table('user_organizations')->insertOrIgnore(
             [
                 'email' => $email,
-                'organization' => $organization,
+                'organization_id' => $organizationID,
                 'user_id' => null,
                 'created_at' => now(),
                 'updated_at' => now()
             ]
         );
 
-        $invitation = UserOrganization::where('email', $email)->where('organization', $organization)->first();
+        $invitation = UserOrganization::where('email', $email)->where('organization_id', $organizationID)->first();
         if (is_null($invitation)) {
             throw new HttpException(400, 'Invitation can not be created. ' . "[$email, $organization]");
         }
-        $organizationMeta = OrganizationMeta::where('organization', $organization)->firstOrFail();
-        if (is_null($organizationMeta)) {
-            throw new HttpException(404, 'Organization '. $organization.'not found');
-        }
-        Mail::to($email)->send(new OrganizationMemberInvited($invitation, $organizationMeta));
+        $organization = Organization::find($organizationID);
+        Mail::to($email)->send(new OrganizationMemberInvited($invitation, $organization));
         return $invitation;
     }
 
@@ -148,7 +159,7 @@ class UserRepository
         if (!$client->databaseExists()) {
             $client->createDatabase();
         }
-        $admin = $this->dbAdmin();
+        $admin = $this->dbAdmin($client);
         $admin->addDatabaseMemberRole($this->defaultRole());
     }
 
@@ -159,28 +170,17 @@ class UserRepository
 
     public function roles()
     {
-        $organizations = UserOrganization::select('organization')
-            ->where('user_id', $this->user->getAuthIdentifier())
+        $organizations = Organization::select('database')
+            ->join('user_organizations', 'user_organizations.organization_id', 'organizations.id')
+            ->where('user_organizations.user_id', $this->user->getAuthIdentifier())
             ->get();
         $roles = $organizations->map(function ($org) {
-            return 'admin.' . $org->organization;
+            return 'admin.' . $org->database;
         });
         return array_merge(
             [$this->defaultRole()],
             $roles->toArray()
         );
-    }
-
-    public function organizationNames()
-    {
-        return UserOrganization::select('name')
-            ->where('user_id', $this->user->getAuthIdentifier())
-            ->join('organization_metas', 'user_organizations.organization', '=', 'organization_metas.organization')
-            ->select('organization_metas.name')
-            ->get()
-            ->map(function ($org) {
-                return $org->name;
-            })->flatten()->all();
     }
     
     public function databaseName()

@@ -23,7 +23,6 @@ class Auth implements AuthInterface
              "iat" => $idToken->iat,
              "exp" => $idToken->exp,
              "_couchdb.roles" => $user->roles(),
-             "dbNames" => $user->organizationNames(),
              "https://sociocracy30.io/userDB" => $user->databaseName()
          ];
         

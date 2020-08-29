@@ -59,7 +59,7 @@ class MembersController extends Controller
         ]);
 
         $organization = $request->input('organization');
-        $members = UserOrganization::where('organization', $organization)->whereNotNull('email');
+        $members = UserOrganization::where('organization_id', $organization)->whereNotNull('email');
         return response()->json($members->get());
     }
 
@@ -111,12 +111,12 @@ class MembersController extends Controller
         $invitation_id = intval($invitation_id);
         $invitation = UserOrganization::where('invitation_token', $token)
             ->where('user_organizations.id', $invitation_id)
-            ->join('organization_metas', 'organization_metas.organization', 'user_organizations.organization')
+            ->join('organizations', 'organizations.id', 'user_organizations.organization_id')
             ->select(
                 'user_organizations.id as invitation_id',
                 'user_organizations.user_id as user_id',
-                'organization_metas.organization as organization_id',
-                'organization_metas.name as organization_name',
+                'organizations.id as organization_id',
+                'organizations.name as organization_name',
                 'accepted_at',
                 'email'
             )->firstOrFail();
@@ -180,18 +180,18 @@ class MembersController extends Controller
             $invitation->accepted_at = (new \DateTime())->format('Y-m-d H:i');
             $invitation->invitation_token = null;
             $invitation->user_id = $user->id();
-            $user->joinOrganization($invitation->organization);
+            $user->joinOrganizationID($invitation->organization_id);
         }
         $invitation->save();
         
-        $invitation = UserOrganization::join('organization_metas', 'organization_metas.organization', 'user_organizations.organization')
+        $invitation = UserOrganization::join('organizations', 'organizations.id', 'user_organizations.organization_id')
         ->select(
             'user_organizations.id as invitation_id',
             'user_organizations.user_id as user_id',
-            'organization_metas.name as organization_name',
-            'organization_metas.organization as organization_id',
             'user_organizations.accepted_at as accepted_at',
-            'user_organizations.email as email'
+            'user_organizations.email as email',
+            'organizations.name as organization_name',
+            'organizations.id as organization_id'
         )->findOrFail($invitation->id);
         return response()->json($invitation);
     }
@@ -221,7 +221,7 @@ class MembersController extends Controller
      *                      ),
      *                      @OA\Property(
      *                          property="organization_id",
-     *                          type="string",
+     *                          type="number",
      *                          description="Organization where the member is invited."
      *                      ),
      *                      @OA\Property(

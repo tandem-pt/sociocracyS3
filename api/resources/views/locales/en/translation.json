@@ -1,4 +1,31 @@
 {
     "redirect_message": "You are being redirected",
-    "languages": ["en"]
+    "languages": ["en"],
+    "editor": {
+        "bold": "Bold (ctrl+b)",
+        "italic": "Italic (ctrl+i)",
+        "underline": "Underline (ctrl+u)",
+        "heading": "Title",
+        "quote": "Quote",
+        "list": "Bullet list",
+        "number": "Numbered List"
+    },
+    "navbar" : {
+        "yourSpace": "Your Brave Space",
+        "inbox": "Inbox",
+        "proposals": "Proposals",
+        "organization": "Organization",
+        "misc": "",
+        "shortCuts": "Short Cuts"
+    },
+    "organization": {
+        "organization": "Details",
+        "map": "Explore"
+    },
+    "shortCuts": {
+
+    },
+    "misc": {
+        "logout": "Logout"
+    }
 }

@@ -3,7 +3,7 @@
 namespace App\Mail;
 
 use App\UserOrganization;
-use App\OrganizationMeta;
+use App\Organization;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
@@ -20,7 +20,7 @@ class OrganizationMemberInvited extends Mailable
      *
      * @return void
      */
-    public function __construct(UserOrganization $invitation, OrganizationMeta $organization)
+    public function __construct(UserOrganization $invitation, Organization $organization)
     {
         $this->organization = $organization;
         $this->invitation_link = getenv('APP_FRONT_URL') . '/participate?' . http_build_query([

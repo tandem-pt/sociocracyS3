@@ -43,8 +43,8 @@ if (! function_exists('now')) {
      * @param  string  $path
      * @return string
      */
-    function now()
+    function now($timezone = null)
     {
-        return now();
+        return \Carbon\Carbon::now();
     }
 }

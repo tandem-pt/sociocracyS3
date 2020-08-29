@@ -35,7 +35,9 @@ $router->get('/locales/{locale:.*}.json', function ($locale) use ($router) {
 $router->group(['prefix' => '/api/v1'], function () use ($router) {
     // Private routes
     $router->group(['middleware' => 'auth'], function () use ($router) {
+        $router->get('/organizations', ['uses' => 'OrganizationsController@index']);
         $router->post('/organizations', ['uses' => 'OrganizationsController@create']);
+        $router->get('/organizations/{organization_id}', ['uses' => 'OrganizationsController@get']);
         
         $router->get('/members', ['uses' => 'MembersController@index']);
         $router->post('/members', ['uses' => 'MembersController@create']);

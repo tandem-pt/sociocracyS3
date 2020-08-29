@@ -3,13 +3,18 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 
-class OrganizationMeta extends Model
+class Organization extends Model
 {
-    protected $table = "organization_metas";
+    protected $table = "organizations";
     protected $fillable = [
         "creator_id",
         "organization",
         "name"
     ];
     public $timestamps = true;
+    
+    public function users()
+    {
+        return $this->hasMany('App\UserOrganization');
+    }
 }

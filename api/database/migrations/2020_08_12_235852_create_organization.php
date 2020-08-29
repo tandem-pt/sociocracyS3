@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateOrganizationMeta extends Migration
+class CreateOrganization extends Migration
 {
     /**
      * Run the migrations.
@@ -13,12 +13,10 @@ class CreateOrganizationMeta extends Migration
      */
     public function up()
     {
-        Schema::create('organization_metas', function (Blueprint $table) {
-            $table->increments('id');
-            $table->string('creator_id');
-            $table->string('organization');
-            $table->string('name');
-            $table->unique('organization');
+        Schema::create('organizations', function (Blueprint $table) {
+            $table->id();
+            $table->string('name')->unique();
+            $table->string('database')->unique();
             $table->timestamps();
         });
     }
@@ -30,6 +28,6 @@ class CreateOrganizationMeta extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('organization_metas');
+        Schema::dropIfExists('organizations');
     }
 }
